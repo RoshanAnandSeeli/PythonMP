@@ -1,12 +1,19 @@
 import numpy as np
 
 
-def simulate_heat(grid_size, source_temp, steps=100):
+def simulate_heat(grid_size, source_temp, steps=300, core_layout=None):
     alpha = 0.25
     grid = np.zeros((grid_size, grid_size))
 
-    center = grid_size // 2
-    grid[center, center] = source_temp
+    if core_layout:
+        # Place heat sources at each core position (normalized 0-1 coords)
+        for (r, c) in core_layout:
+            ri = int(r * (grid_size - 1))
+            ci = int(c * (grid_size - 1))
+            grid[ri, ci] = source_temp
+    else:
+        center = grid_size // 2
+        grid[center, center] = source_temp
 
     for _ in range(steps):
         grid[1:-1, 1:-1] += alpha * (
@@ -16,7 +23,15 @@ def simulate_heat(grid_size, source_temp, steps=100):
             grid[1:-1, :-2] -
             4 * grid[1:-1, 1:-1]
         )
-        grid[center, center] = source_temp
+        # Re-apply heat sources every step
+        if core_layout:
+            for (r, c) in core_layout:
+                ri = int(r * (grid_size - 1))
+                ci = int(c * (grid_size - 1))
+                grid[ri, ci] = source_temp
+        else:
+            center = grid_size // 2
+            grid[center, center] = source_temp
 
     return grid.tolist()
 

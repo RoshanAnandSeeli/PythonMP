@@ -7,7 +7,22 @@ document.addEventListener('DOMContentLoaded', () => {
     updateTimestamp();
     setInterval(updateTimestamp, 1000);
     addLog("SYSTEM_READY", "INFO");
+    loadProfiles();
 });
+
+async function loadProfiles() {
+    const select = document.getElementById("cpuProfile");
+    try {
+        const res = await fetch("/profiles");
+        const profiles = await res.json();
+        select.innerHTML = profiles.map(p =>
+            `<option value="${p.id}">${p.name} (${p.cores}C / ${p.tdp}W)</option>`
+        ).join("");
+        addLog(`PROFILES_LOADED: ${profiles.length}_FOUND`, "INFO");
+    } catch (e) {
+        addLog("FAILED_TO_LOAD_PROFILES", "ERROR");
+    }
+}
 
 function updateTimestamp() {
     const now = new Date();
@@ -32,11 +47,12 @@ async function runSimulation() {
     const runBtn = document.getElementById("runBtn");
     const btnText = runBtn.querySelector(".btn-text");
     const gridSize = document.getElementById("gridSize").value;
-    const temperature = document.getElementById("temperature").value;
+    const profileId = document.getElementById("cpuProfile").value;
+    const loadPercent = document.getElementById("loadPercent").value;
 
     runBtn.disabled = true;
     btnText.innerText = "PROCESSING...";
-    addLog(`INIT_SIMULATION: GRID_SIZE=${gridSize}, TEMP=${temperature}°C`, "PROCESS");
+    addLog(`INIT_SIMULATION: PROFILE=${profileId}, LOAD=${loadPercent}%`, "PROCESS");
 
     const startTime = performance.now();
 
@@ -47,8 +63,9 @@ async function runSimulation() {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                grid_size: gridSize,
-                temperature: temperature
+                profile_id: profileId,
+                load_percent: loadPercent,
+                grid_size: gridSize
             })
         });
 

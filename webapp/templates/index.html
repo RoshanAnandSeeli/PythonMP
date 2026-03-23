@@ -55,17 +55,24 @@
                 </div>
                 <div class="terminal-body">
                     <div class="parameter-group">
+                        <label>_CPU_PROFILE</label>
+                        <div class="input-wrapper">
+                            <select id="cpuProfile" style="background:#0f172a;color:#f8fafc;border:1px solid #1e293b;padding:6px;width:100%;font-family:'JetBrains Mono',monospace;font-size:12px">
+                                <option value="">LOADING_PROFILES...</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="parameter-group">
+                        <label>_CPU_LOAD: <span id="loadLabel">100</span>%</label>
+                        <div class="input-wrapper">
+                            <input type="range" id="loadPercent" value="100" min="10" max="100" step="5" oninput="document.getElementById('loadLabel').innerText=this.value" style="width:100%">
+                        </div>
+                    </div>
+                    <div class="parameter-group">
                         <label>_GRID_RESOLUTION</label>
                         <div class="input-wrapper">
                             <input type="number" id="gridSize" value="40" min="5" max="100">
                             <span class="unit">nodes</span>
-                        </div>
-                    </div>
-                    <div class="parameter-group">
-                        <label>_SOURCE_TEMPERATURE</label>
-                        <div class="input-wrapper">
-                            <input type="number" id="temperature" value="180">
-                            <span class="unit">°C</span>
                         </div>
                     </div>
                     <button class="execute-btn" id="runBtn" onclick="runSimulation()">
