@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THERMAL_OS // ELITE_COMMAND_CENTER</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&family=JetBrains+Mono:wght@300;400;700&display=swap"
+        rel="stylesheet">
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+
+<body class="coder-vibe">
+    <div class="scanline"></div>
+    <div class="noise"></div>
+
+    <div class="container main-layout">
+        <header class="system-header">
+            <div class="header-left">
+                <div class="status-indicator">
+                    <span class="pulse-dot"></span>
+                    <span class="status-text">SYSTEM_ACTIVE</span>
+                </div>
+                <div class="timestamp" id="liveTimestamp"></div>
+            </div>
+            <div class="title-block">
+                <h1>THERMAL_ANALYSIS_V2</h1>
+                <p>PRO_GRADE_SIMULATION_ENGINE</p>
+            </div>
+            <div class="header-right">
+                <div class="connection-status">
+                    <span class="label">NODES</span>
+                    <span class="value">04_CONNECTED</span>
+                </div>
+                <div class="latency">
+                    <span class="label">LATENCY</span>
+                    <span class="value">14ms</span>
+                </div>
+            </div>
+        </header>
+
+        <main class="dashboard-grid">
+            <aside class="control-terminal">
+                <div class="terminal-header">
+                    <i data-lucide="terminal"></i>
+                    <span>EXECUTION_PARAMETERS</span>
+                </div>
+                <div class="terminal-body">
+                    <div class="parameter-group">
+                        <label>_GRID_RESOLUTION</label>
+                        <div class="input-wrapper">
+                            <input type="number" id="gridSize" value="40" min="5" max="100">
+                            <span class="unit">nodes</span>
+                        </div>
+                    </div>
+                    <div class="parameter-group">
+                        <label>_SOURCE_TEMPERATURE</label>
+                        <div class="input-wrapper">
+                            <input type="number" id="temperature" value="180">
+                            <span class="unit">°C</span>
+                        </div>
+                    </div>
+                    <button class="execute-btn" id="runBtn" onclick="runSimulation()">
+                        <span class="btn-text">RUN_SIMULATION</span>
+                        <i data-lucide="play"></i>
+                    </button>
+                </div>
+                <div class="system-logs">
+                    <div class="logs-header">_INTERNAL_LOGS</div>
+                    <div class="logs-container" id="terminalLogs">
+                        <div class="log-entry">> IDLE_STATE_DETECTED</div>
+                        <div class="log-entry">> WAITING_FOR_INPUT...</div>
+                    </div>
+                </div>
+            </aside>
+
+            <section class="visual-analysis">
+                <div class="analysis-panel primary-viz">
+                    <div class="panel-header">
+                        <i data-lucide="box"></i>
+                        <span>THERMAL_SURFACE_3D</span>
+                    </div>
+                    <div id="heatmap" class="plotly-container"></div>
+                </div>
+
+                <div class="analysis-panel secondary-viz">
+                    <div class="panel-header">
+                        <i data-lucide="activity"></i>
+                        <span>CROSS_SECTION_DYNAMIC</span>
+                    </div>
+                    <div id="graph" class="plotly-container"></div>
+                </div>
+
+                <div class="analysis-panel analytics-panel">
+                    <div class="panel-header">
+                        <i data-lucide="search-code"></i>
+                        <span>THERMAL_INTELLIGENCE</span>
+                    </div>
+                    <div class="analytics-content">
+                        <div class="suggestion-tag">AI_RECOMMENDATION</div>
+                        <p id="suggestion">SYSTEM_READY. AWAITING_SIMULATION_DATA...</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="system-footer">
+            <div class="footer-segment">V_2.5.0_STABLE</div>
+            <div class="footer-segment">CORE_AUTH: JEEDI_JOSHUA</div>
+            <div class="footer-segment" id="simulationTime">LAST_RUNTIME: NULL</div>
+        </footer>
+    </div>
+
+    <script src="/static/script.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+
+</html>
