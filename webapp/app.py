@@ -1,5 +1,6 @@
 import sys
 import os
+import time
 from flask import Flask, render_template, request, jsonify
 import numpy as np
 
@@ -26,9 +27,55 @@ with app.app_context():
     seed_cpu_profiles()
 
 
+latest_sensor_temp = 30.0
+last_sensor_update = None
+
+
 @app.route("/")
 def home():
     return render_template("index.html")
+
+
+@app.route("/sensor")
+def sensor_page():
+    return render_template("sensor.html")
+
+
+@app.route("/sensor-data", methods=["POST", "OPTIONS"])
+def sensor_data():
+    global latest_sensor_temp, last_sensor_update
+    if request.method == "OPTIONS":
+        return jsonify({"status": "ok"}), 200
+    try:
+        data = request.get_json()
+        if "temperature" in data:
+            latest_sensor_temp = float(data["temperature"])
+            last_sensor_update = time.time()
+            return jsonify({"status": "success", "latest_temp": latest_sensor_temp})
+        return jsonify({"status": "error", "message": "No temperature provided"}), 400
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 400
+
+
+@app.route("/live-simulate", methods=["POST"])
+def live_simulate():
+    try:
+        data = request.get_json()
+        grid_size = int(data.get("grid_size", 40))
+        grid_size = max(5, min(grid_size, 100))
+        grid = simulate_heat(grid_size, latest_sensor_temp)
+        max_temp = np.max(grid)
+        suggestion = cooling_suggestion(max_temp)
+        return jsonify({
+            "grid": grid,
+            "max_temp": float(max_temp),
+            "suggestion": suggestion,
+            "latest_temp": latest_sensor_temp,
+            "last_update_time": last_sensor_update,
+            "status": "success"
+        })
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 400
 
 
 @app.route("/profiles", methods=["GET"])
