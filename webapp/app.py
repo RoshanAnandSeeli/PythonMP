@@ -60,9 +60,9 @@ def simulate():
         # Scale temperature based on load and TDP
         source_temp = (load_percent / 100) * profile.max_temp
 
-        grid = simulate_heat(grid_size, source_temp, core_layout=profile.core_layout)
+        grid = simulate_heat(grid_size, source_temp, core_layout=profile.core_layout, tdp=profile.tdp)
         max_temp = np.max(grid)
-        suggestion = cooling_suggestion(max_temp)
+        suggestion = cooling_suggestion(max_temp, tdp=profile.tdp)
 
         # Save to history
         record = SimulationHistory(
