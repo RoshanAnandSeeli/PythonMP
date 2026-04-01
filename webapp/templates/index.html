@@ -53,32 +53,65 @@
                     <i data-lucide="terminal"></i>
                     <span>EXECUTION_PARAMETERS</span>
                 </div>
+                <div class="mode-switcher" style="display:flex;gap:0.5rem;padding:0.75rem 1rem;border-bottom:1px solid rgba(6,182,212,0.15)">
+                    <button id="btnProfileMode" onclick="setMode('profile')" style="flex:1;padding:0.5rem;font-family:'JetBrains Mono',monospace;font-size:0.7rem;font-weight:700;border-radius:0.4rem;cursor:pointer;border:1px solid #06b6d4;background:#06b6d4;color:#030712">PROFILE_MODE</button>
+                    <button id="btnLiveMode" onclick="setMode('live')" style="flex:1;padding:0.5rem;font-family:'JetBrains Mono',monospace;font-size:0.7rem;font-weight:700;border-radius:0.4rem;cursor:pointer;border:1px solid rgba(6,182,212,0.3);background:transparent;color:#64748b">LIVE_MODE</button>
+                </div>
                 <div class="terminal-body">
-                    <div class="parameter-group">
-                        <label>_CPU_PROFILE</label>
-                        <div class="input-wrapper">
-                            <select id="cpuProfile" style="background:#0f172a;color:#f8fafc;border:1px solid #1e293b;padding:6px;width:100%;font-family:'JetBrains Mono',monospace;font-size:12px">
-                                <option value="">LOADING_PROFILES...</option>
-                            </select>
+                    <!-- PROFILE MODE -->
+                    <div id="profileModePanel">
+                        <div class="parameter-group">
+                            <label>_CPU_PROFILE</label>
+                            <div class="input-wrapper">
+                                <select id="cpuProfile" style="background:#0f172a;color:#f8fafc;border:1px solid #1e293b;padding:6px;width:100%;font-family:'JetBrains Mono',monospace;font-size:12px">
+                                    <option value="">LOADING_PROFILES...</option>
+                                </select>
+                            </div>
                         </div>
-                    </div>
-                    <div class="parameter-group">
-                        <label>_CPU_LOAD: <span id="loadLabel">100</span>%</label>
-                        <div class="input-wrapper">
-                            <input type="range" id="loadPercent" value="100" min="10" max="100" step="5" oninput="document.getElementById('loadLabel').innerText=this.value" style="width:100%">
+                        <div class="parameter-group">
+                            <label>_CPU_LOAD: <span id="loadLabel">100</span>%</label>
+                            <div class="input-wrapper">
+                                <input type="range" id="loadPercent" value="100" min="10" max="100" step="5" oninput="document.getElementById('loadLabel').innerText=this.value" style="width:100%">
+                            </div>
                         </div>
-                    </div>
-                    <div class="parameter-group">
-                        <label>_GRID_RESOLUTION</label>
-                        <div class="input-wrapper">
-                            <input type="number" id="gridSize" value="40" min="5" max="100">
-                            <span class="unit">nodes</span>
+                        <div class="parameter-group">
+                            <label>_GRID_RESOLUTION</label>
+                            <div class="input-wrapper">
+                                <input type="number" id="gridSize" value="40" min="5" max="100">
+                                <span class="unit">nodes</span>
+                            </div>
                         </div>
+                        <button class="execute-btn" id="runBtn" onclick="runSimulation()">
+                            <span class="btn-text">RUN_SIMULATION</span>
+                            <i data-lucide="play"></i>
+                        </button>
                     </div>
-                    <button class="execute-btn" id="runBtn" onclick="runSimulation()">
-                        <span class="btn-text">RUN_SIMULATION</span>
-                        <i data-lucide="play"></i>
-                    </button>
+                    <!-- LIVE MODE -->
+                    <div id="liveModePanel" style="display:none">
+                        <div class="parameter-group">
+                            <label>_LIVE_TEMPERATURE</label>
+                            <div class="input-wrapper">
+                                <span id="liveTempValue" style="color:#fff;font-family:'JetBrains Mono',monospace;font-size:1.1rem;padding:0.75rem 0;flex:1">--</span>
+                                <span class="unit">°C</span>
+                            </div>
+                        </div>
+                        <div class="parameter-group">
+                            <label>_SENSOR_STATUS</label>
+                            <div style="display:flex;align-items:center;gap:0.75rem;padding:0.5rem 0">
+                                <span id="sensorStatusLight" style="width:10px;height:10px;border-radius:50%;background:#ef4444;box-shadow:0 0 8px #ef4444;display:inline-block"></span>
+                                <span style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:#f1f5f9" id="sensorStatusLabel">WAITING</span>
+                            </div>
+                            <div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:#64748b;margin-top:0.25rem">LAST_UPDATE: <span id="lastUpdatedTime">--:--:--</span></div>
+                        </div>
+                        <div class="parameter-group">
+                            <label>_GRID_RESOLUTION</label>
+                            <div class="input-wrapper">
+                                <input type="number" id="gridSizeLive" value="40" min="5" max="100">
+                                <span class="unit">nodes</span>
+                            </div>
+                        </div>
+                        <a href="/sensor" target="_blank" style="display:block;text-align:center;background:rgba(6,182,212,0.1);border:1px solid rgba(6,182,212,0.3);color:#06b6d4;padding:0.75rem;border-radius:0.5rem;font-family:'JetBrains Mono',monospace;font-size:0.75rem;text-decoration:none;letter-spacing:2px">OPEN_PHONE_SENSOR →</a>
+                    </div>
                 </div>
                 <div class="system-logs">
                     <div class="logs-header">_INTERNAL_LOGS</div>
