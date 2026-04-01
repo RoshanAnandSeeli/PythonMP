@@ -3,8 +3,6 @@ import os
 import time
 from flask import Flask, render_template, request, jsonify
 import numpy as np
-from dotenv import load_dotenv
-load_dotenv()
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(BASE_DIR)
@@ -19,7 +17,7 @@ app = Flask(
     static_folder=os.path.join(BASE_DIR, "webapp", "static")
 )
 
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "sqlite:///thermal.db")
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db.init_app(app)
