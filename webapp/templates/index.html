@@ -1,25 +1,21 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>THERMAL_OS // ELITE_COMMAND_CENTER</title>
+    <title>Thermal OS — Analysis Engine</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&family=JetBrains+Mono:wght@300;400;700&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&family=JetBrains+Mono:wght@300;400;700&display=swap" rel="stylesheet">
 
     <script src="https://unpkg.com/lucide@latest"></script>
-
     <link rel="stylesheet" href="/static/style.css">
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 </head>
 
 <body class="coder-vibe">
-    
     <div class="scanline"></div>
     <div class="noise"></div>
 
@@ -28,23 +24,26 @@
             <div class="header-left">
                 <div class="status-indicator">
                     <span class="pulse-dot"></span>
-                    <span class="status-text">SYSTEM_ACTIVE</span>
+                    <span class="status-text">System Active</span>
                 </div>
                 <div class="timestamp" id="liveTimestamp"></div>
             </div>
             <div class="title-block">
-                <h1>THERMAL_ANALYSIS_V2</h1>
-                <p>PRO_GRADE_SIMULATION_ENGINE</p>
+                <h1>Thermal Analysis</h1>
+                <p>Pro Grade Simulation Engine</p>
             </div>
             <div class="header-right">
                 <div class="connection-status">
-                    <span class="label">NODES</span>
-                    <span class="value">04_CONNECTED</span>
+                    <span class="label">Nodes</span>
+                    <span class="value" id="nodeCount">—</span>
                 </div>
                 <div class="latency">
-                    <span class="label">LATENCY</span>
-                    <span class="value">14ms</span>
+                    <span class="label">Latency</span>
+                    <span class="value" id="latencyDisplay">—</span>
                 </div>
+                <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+                    <i data-lucide="sun" id="themeIcon"></i>
+                </button>
             </div>
         </header>
 
@@ -52,73 +51,73 @@
             <aside class="control-terminal">
                 <div class="terminal-header">
                     <i data-lucide="terminal"></i>
-                    <span>EXECUTION_PARAMETERS</span>
+                    <span>Parameters</span>
                 </div>
-                <div class="mode-switcher" style="display:flex;gap:0.5rem;padding:0.75rem 1rem;border-bottom:1px solid rgba(6,182,212,0.15)">
-                    <button id="btnProfileMode" onclick="setMode('profile')" style="flex:1;padding:0.5rem;font-family:'JetBrains Mono',monospace;font-size:0.7rem;font-weight:700;border-radius:0.4rem;cursor:pointer;border:1px solid #06b6d4;background:#06b6d4;color:#030712">PROFILE_MODE</button>
-                    <button id="btnLiveMode" onclick="setMode('live')" style="flex:1;padding:0.5rem;font-family:'JetBrains Mono',monospace;font-size:0.7rem;font-weight:700;border-radius:0.4rem;cursor:pointer;border:1px solid rgba(6,182,212,0.3);background:transparent;color:#64748b">LIVE_MODE</button>
+                <div class="mode-switcher">
+                    <button id="btnProfileMode" onclick="setMode('profile')" class="mode-btn active">Profile Mode</button>
+                    <button id="btnLiveMode" onclick="setMode('live')" class="mode-btn">Live Mode</button>
                 </div>
                 <div class="terminal-body">
                     <!-- PROFILE MODE -->
                     <div id="profileModePanel">
                         <div class="parameter-group">
-                            <label>_CPU_PROFILE</label>
+                            <label>CPU Profile</label>
                             <div class="input-wrapper">
-                                <select id="cpuProfile" style="background:#0f172a;color:#f8fafc;border:1px solid #1e293b;padding:6px;width:100%;font-family:'JetBrains Mono',monospace;font-size:12px">
-                                    <option value="">LOADING_PROFILES...</option>
+                                <select id="cpuProfile">
+                                    <option value="">Loading profiles...</option>
                                 </select>
                             </div>
                         </div>
                         <div class="parameter-group">
-                            <label>_CPU_LOAD: <span id="loadLabel">100</span>%</label>
+                            <label>CPU Load: <span id="loadLabel">100</span>%</label>
                             <div class="input-wrapper">
                                 <input type="range" id="loadPercent" value="100" min="10" max="100" step="5" oninput="document.getElementById('loadLabel').innerText=this.value" style="width:100%">
                             </div>
                         </div>
                         <div class="parameter-group">
-                            <label>_GRID_RESOLUTION</label>
+                            <label>Grid Resolution</label>
                             <div class="input-wrapper">
                                 <input type="number" id="gridSize" value="40" min="5" max="100">
                                 <span class="unit">nodes</span>
                             </div>
                         </div>
                         <button class="execute-btn" id="runBtn" onclick="runSimulation()">
-                            <span class="btn-text">RUN_SIMULATION</span>
+                            <span class="btn-text">Run Simulation</span>
                             <i data-lucide="play"></i>
                         </button>
                     </div>
                     <!-- LIVE MODE -->
                     <div id="liveModePanel" style="display:none">
                         <div class="parameter-group">
-                            <label>_LIVE_TEMPERATURE</label>
+                            <label>Live Temperature</label>
                             <div class="input-wrapper">
-                                <span id="liveTempValue" style="color:#fff;font-family:'JetBrains Mono',monospace;font-size:1.1rem;padding:0.75rem 0;flex:1">--</span>
+                                <span id="liveTempValue" style="font-family:'JetBrains Mono',monospace;font-size:1.1rem;padding:0.75rem 0;flex:1">--</span>
                                 <span class="unit">°C</span>
                             </div>
                         </div>
                         <div class="parameter-group">
-                            <label>_SENSOR_STATUS</label>
+                            <label>Sensor Status</label>
                             <div style="display:flex;align-items:center;gap:0.75rem;padding:0.5rem 0">
                                 <span id="sensorStatusLight" style="width:10px;height:10px;border-radius:50%;background:#ef4444;box-shadow:0 0 8px #ef4444;display:inline-block"></span>
-                                <span style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:#f1f5f9" id="sensorStatusLabel">WAITING</span>
+                                <span style="font-family:'JetBrains Mono',monospace;font-size:0.75rem" id="sensorStatusLabel">Waiting</span>
                             </div>
-                            <div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:#64748b;margin-top:0.25rem">LAST_UPDATE: <span id="lastUpdatedTime">--:--:--</span></div>
+                            <div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--text-dim);margin-top:0.25rem">Last Update: <span id="lastUpdatedTime">--:--:--</span></div>
                         </div>
                         <div class="parameter-group">
-                            <label>_GRID_RESOLUTION</label>
+                            <label>Grid Resolution</label>
                             <div class="input-wrapper">
                                 <input type="number" id="gridSizeLive" value="40" min="5" max="100">
                                 <span class="unit">nodes</span>
                             </div>
                         </div>
-                        <a href="/sensor" target="_blank" style="display:block;text-align:center;background:rgba(6,182,212,0.1);border:1px solid rgba(6,182,212,0.3);color:#06b6d4;padding:0.75rem;border-radius:0.5rem;font-family:'JetBrains Mono',monospace;font-size:0.75rem;text-decoration:none;letter-spacing:2px">OPEN_PHONE_SENSOR →</a>
+                        <a href="/sensor" target="_blank" class="sensor-link">Open Phone Sensor →</a>
                     </div>
                 </div>
                 <div class="system-logs">
-                    <div class="logs-header">_INTERNAL_LOGS</div>
+                    <div class="logs-header">Internal Logs</div>
                     <div class="logs-container" id="terminalLogs">
-                        <div class="log-entry">> IDLE_STATE_DETECTED</div>
-                        <div class="log-entry">> WAITING_FOR_INPUT...</div>
+                        <div class="log-entry">> Idle state detected</div>
+                        <div class="log-entry">> Waiting for input...</div>
                     </div>
                 </div>
             </aside>
@@ -127,7 +126,7 @@
                 <div class="analysis-panel primary-viz">
                     <div class="panel-header">
                         <i data-lucide="box"></i>
-                        <span>THERMAL_SURFACE_3D</span>
+                        <span>Thermal Surface 3D</span>
                     </div>
                     <div id="heatmap" class="plotly-container"></div>
                 </div>
@@ -135,7 +134,7 @@
                 <div class="analysis-panel secondary-viz">
                     <div class="panel-header">
                         <i data-lucide="activity"></i>
-                        <span>CROSS_SECTION_DYNAMIC</span>
+                        <span>Cross Section Gradient</span>
                     </div>
                     <div id="graph" class="plotly-container"></div>
                 </div>
@@ -143,27 +142,25 @@
                 <div class="analysis-panel analytics-panel">
                     <div class="panel-header">
                         <i data-lucide="search-code"></i>
-                        <span>THERMAL_INTELLIGENCE</span>
+                        <span>Thermal Intelligence</span>
                     </div>
                     <div class="analytics-content">
-                        <div class="suggestion-tag">AI_RECOMMENDATION</div>
-                        <p id="suggestion">SYSTEM_READY. AWAITING_SIMULATION_DATA...</p>
+                        <div class="suggestion-tag">AI Recommendation</div>
+                        <p id="suggestion">System ready. Awaiting simulation data...</p>
                     </div>
                 </div>
             </section>
         </main>
 
         <footer class="system-footer">
-            <div class="footer-segment">V_2.5.0_STABLE</div>
-            <div class="footer-segment">CORE_AUTH: JEEDI_JOSHUA</div>
-            <div class="footer-segment" id="simulationTime">LAST_RUNTIME: NULL</div>
+            <div class="footer-segment">v3.1.0 Stable</div>
+            <div class="footer-segment">Team Roshan</div>
+            <div class="footer-segment" id="simulationTime">Last Runtime: —</div>
         </footer>
     </div>
 
     <script src="/static/script.js"></script>
-    <script>
-        lucide.createIcons();
-    </script>
+    <script>lucide.createIcons();</script>
 </body>
 
 </html>
