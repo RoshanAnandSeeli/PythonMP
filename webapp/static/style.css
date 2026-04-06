@@ -252,11 +252,11 @@ body::before {
 }
 
 .system-logs {
-    flex-grow: 1;
     background: rgba(0, 0, 0, 0.4);
     border-top: 1px solid var(--border-glass);
     padding: 1rem;
     font-family: var(--font-mono);
+    flex-shrink: 0;
 }
 
 .logs-header {
@@ -271,7 +271,9 @@ body::before {
     flex-direction: column;
     gap: 0.5rem;
     height: 200px;
+    max-height: 200px;
     overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .log-entry {

@@ -1,12 +1,23 @@
 import numpy as np
 
 
-def simulate_heat(grid_size, source_temp, steps=300, core_layout=None):
-    alpha = 0.25
+# Thermal conductivity alpha scales with TDP — higher TDP chips spread heat faster
+def get_alpha(tdp):
+    if tdp >= 300:
+        return 0.35   # Server CPUs / high-end GPUs
+    elif tdp >= 100:
+        return 0.28   # Desktop CPUs / mid GPUs
+    elif tdp >= 50:
+        return 0.22   # Standard desktop CPUs
+    else:
+        return 0.15   # Mobile / low power chips
+
+
+def simulate_heat(grid_size, source_temp, steps=300, core_layout=None, tdp=65.0):
+    alpha = get_alpha(tdp)
     grid = np.zeros((grid_size, grid_size))
 
     if core_layout:
-        # Place heat sources at each core position (normalized 0-1 coords)
         for (r, c) in core_layout:
             ri = int(r * (grid_size - 1))
             ci = int(c * (grid_size - 1))
@@ -23,7 +34,6 @@ def simulate_heat(grid_size, source_temp, steps=300, core_layout=None):
             grid[1:-1, :-2] -
             4 * grid[1:-1, 1:-1]
         )
-        # Re-apply heat sources every step
         if core_layout:
             for (r, c) in core_layout:
                 ri = int(r * (grid_size - 1))
@@ -36,10 +46,14 @@ def simulate_heat(grid_size, source_temp, steps=300, core_layout=None):
     return grid.tolist()
 
 
-def cooling_suggestion(max_temp):
+def cooling_suggestion(max_temp, tdp=65.0):
     if max_temp > 90:
+        if tdp >= 200:
+            return "Critical temperature on high-TDP component. Liquid cooling or vapour chamber required immediately."
         return "Critical temperature detected. Use heat sink with active cooling fan."
     elif max_temp > 70:
+        if tdp >= 200:
+            return "High temperature on high-TDP component. Upgrade cooling solution and improve case airflow."
         return "High temperature detected. Improve airflow or apply thermal paste."
     else:
         return "Temperature stable. Cooling system adequate."
