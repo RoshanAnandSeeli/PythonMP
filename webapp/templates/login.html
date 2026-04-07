@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thermal OS — Sign In</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: #030712;
+            color: #f1f5f9;
+            font-family: 'Outfit', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-image:
+                radial-gradient(circle at 30% 50%, rgba(6,182,212,0.06) 0%, transparent 50%),
+                radial-gradient(circle at 70% 50%, rgba(139,92,246,0.05) 0%, transparent 50%),
+                linear-gradient(rgba(6,182,212,0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(6,182,212,0.04) 1px, transparent 1px);
+            background-size: cover, cover, 60px 60px, 60px 60px;
+        }
+
+        .login-card {
+            background: rgba(8,12,24,0.9);
+            border: 1px solid rgba(6,182,212,0.15);
+            border-radius: 1.25rem;
+            padding: 3rem;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 0 40px rgba(6,182,212,0.1);
+        }
+
+        .brand {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .brand h1 {
+            font-size: 1.8rem;
+            font-weight: 900;
+            background: linear-gradient(to right, #fff, #06b6d4);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .brand p {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: #64748b;
+            letter-spacing: 2px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: #64748b;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .form-group input {
+            background: rgba(0,0,0,0.4);
+            border: 1px solid rgba(6,182,212,0.15);
+            border-radius: 0.5rem;
+            padding: 0.85rem 1rem;
+            color: #f1f5f9;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            outline: none;
+            width: 100%;
+        }
+
+        .form-group input:focus { border-color: rgba(6,182,212,0.5); }
+
+        .error-msg {
+            color: #ef4444;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .btn-submit {
+            width: 100%;
+            background: #06b6d4;
+            color: #030712;
+            border: none;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-weight: 900;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(6,182,212,0.4);
+            margin-top: 0.5rem;
+        }
+
+        .btn-submit:hover { box-shadow: 0 0 25px rgba(6,182,212,0.6); }
+
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 1.5rem;
+            color: #64748b;
+            font-size: 0.85rem;
+            text-decoration: none;
+        }
+
+        .back-link:hover { color: #f1f5f9; }
+
+        .hint {
+            text-align: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.65rem;
+            color: #334155;
+            margin-top: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <div class="brand">
+            <h1>Thermal OS</h1>
+            <p>Simulation Engine v3.1.0</p>
+        </div>
+
+        <div id="errorMsg" class="error-msg">Invalid username or password.</div>
+
+        <form onsubmit="handleLogin(event)">
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" id="username" placeholder="Enter username" autocomplete="username">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="password" placeholder="Enter password" autocomplete="current-password">
+            </div>
+            <button type="submit" class="btn-submit">Sign In</button>
+        </form>
+
+        <a href="/" class="back-link">← Back to home</a>
+        <div class="hint">Demo: admin / thermal2025</div>
+    </div>
+
+    <script>
+        async function handleLogin(e) {
+            e.preventDefault();
+            const user = document.getElementById('username').value;
+            const pass = document.getElementById('password').value;
+            const err = document.getElementById('errorMsg');
+
+            const res = await fetch('/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: user, password: pass })
+            });
+
+            if (res.ok) {
+                window.location.href = '/app';
+            } else {
+                err.style.display = 'block';
+                setTimeout(() => err.style.display = 'none', 3000);
+            }
+        }
+    </script>
+</body>
+</html>

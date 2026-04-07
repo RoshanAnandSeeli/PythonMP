@@ -1,7 +1,7 @@
 import sys
 import os
 import time
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 import numpy as np
 from dotenv import load_dotenv
 load_dotenv()
@@ -21,6 +21,25 @@ app = Flask(
 
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "sqlite:///thermal.db")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+    "pool_recycle": 300,
+    "pool_pre_ping": True,
+    "pool_size": 5,
+    "max_overflow": 2
+}
+app.secret_key = os.environ.get("SECRET_KEY", "thermal-secret-2025")
+
+APP_USERNAME = os.environ.get("APP_USERNAME", "admin")
+APP_PASSWORD = os.environ.get("APP_PASSWORD", "thermal2025")
+
+def login_required(f):
+    from functools import wraps
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if not session.get("logged_in"):
+            return redirect(url_for("login"))
+        return f(*args, **kwargs)
+    return decorated
 
 db.init_app(app)
 
@@ -34,11 +53,40 @@ last_sensor_update = None
 
 
 @app.route("/")
+def landing():
+    return render_template("landing.html")
+
+
+@app.route("/login", methods=["GET"])
+def login():
+    if session.get("logged_in"):
+        return redirect(url_for("home"))
+    return render_template("login.html")
+
+
+@app.route("/login", methods=["POST"])
+def do_login():
+    data = request.get_json()
+    if data.get("username") == APP_USERNAME and data.get("password") == APP_PASSWORD:
+        session["logged_in"] = True
+        return jsonify({"status": "success"})
+    return jsonify({"status": "error", "message": "Invalid credentials"}), 401
+
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect(url_for("login"))
+
+
+@app.route("/app")
+@login_required
 def home():
     return render_template("index.html")
 
 
 @app.route("/sensor")
+@login_required
 def sensor_page():
     return render_template("sensor.html")
 
