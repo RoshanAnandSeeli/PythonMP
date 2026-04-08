@@ -190,10 +190,18 @@ CPU_PROFILES = [
 ]
 
 def seed_cpu_profiles():
-    if CPUProfile.query.count() == 0:
-        for p in CPU_PROFILES:
-            db.session.add(CPUProfile(**p))
+    existing_names = {
+        name for (name,) in db.session.query(CPUProfile.name).all()
+    }
+    added_count = 0
+
+    for profile in CPU_PROFILES:
+        if profile["name"] not in existing_names:
+            db.session.add(CPUProfile(**profile))
+            added_count += 1
+
+    if added_count:
         db.session.commit()
-        print("CPU profiles seeded.")
+        print(f"Added {added_count} missing CPU profiles.")
     else:
-        print("Profiles already exist, skipping seed.")
+        print("All CPU profiles already exist.")
