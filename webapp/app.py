@@ -50,6 +50,13 @@ with app.app_context():
 
 latest_sensor_temp = 30.0
 last_sensor_update = None
+latest_thermal_frame = None
+latest_thermal_stats = {
+    "max_temp": 30.0,
+    "avg_temp": 30.0,
+    "rows": 0,
+    "cols": 0
+}
 
 
 @app.route("/")
@@ -93,16 +100,56 @@ def sensor_page():
 
 @app.route("/sensor-data", methods=["POST", "OPTIONS"])
 def sensor_data():
-    global latest_sensor_temp, last_sensor_update
+    global latest_sensor_temp, last_sensor_update, latest_thermal_frame, latest_thermal_stats
     if request.method == "OPTIONS":
         return jsonify({"status": "ok"}), 200
     try:
-        data = request.get_json()
+        data = request.get_json() or {}
+
+        # Thermal camera payload path: expects a 2D array of temperature values.
+        if "thermal_frame" in data:
+            frame = data.get("thermal_frame")
+            if not isinstance(frame, list) or not frame or not isinstance(frame[0], list):
+                return jsonify({"status": "error", "message": "thermal_frame must be a non-empty 2D list"}), 400
+
+            frame_array = np.array(frame, dtype=float)
+            if frame_array.ndim != 2:
+                return jsonify({"status": "error", "message": "thermal_frame must be 2-dimensional"}), 400
+
+            frame_max = float(np.max(frame_array))
+            frame_avg = float(np.mean(frame_array))
+
+            latest_sensor_temp = frame_max
+            latest_thermal_frame = frame
+            latest_thermal_stats = {
+                "max_temp": frame_max,
+                "avg_temp": frame_avg,
+                "rows": int(frame_array.shape[0]),
+                "cols": int(frame_array.shape[1])
+            }
+            last_sensor_update = time.time()
+
+            return jsonify({
+                "status": "success",
+                "source": "thermal_camera",
+                "latest_temp": latest_sensor_temp,
+                "thermal_stats": latest_thermal_stats
+            })
+
+        # Backward-compatible path for direct temperature payloads.
         if "temperature" in data:
             latest_sensor_temp = float(data["temperature"])
             last_sensor_update = time.time()
-            return jsonify({"status": "success", "latest_temp": latest_sensor_temp})
-        return jsonify({"status": "error", "message": "No temperature provided"}), 400
+            latest_thermal_frame = None
+            latest_thermal_stats = {
+                "max_temp": latest_sensor_temp,
+                "avg_temp": latest_sensor_temp,
+                "rows": 0,
+                "cols": 0
+            }
+            return jsonify({"status": "success", "source": "temperature", "latest_temp": latest_sensor_temp})
+
+        return jsonify({"status": "error", "message": "No thermal_frame or temperature provided"}), 400
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 400
 
@@ -122,6 +169,7 @@ def live_simulate():
             "suggestion": suggestion,
             "latest_temp": latest_sensor_temp,
             "last_update_time": last_sensor_update,
+            "thermal_stats": latest_thermal_stats,
             "status": "success"
         })
     except Exception as e:

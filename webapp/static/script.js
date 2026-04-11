@@ -108,7 +108,7 @@ function setMode(mode) {
         livePanel.style.display = 'block';
         btnLive.classList.add('active');
         btnProfile.classList.remove('active');
-        addLog("Mode: Live Sensor", "INFO");
+        addLog("Mode: Thermal Camera", "INFO");
         runLiveSimulation();
         liveInterval = setInterval(runLiveSimulation, 4000);
     }
@@ -249,9 +249,12 @@ async function runLiveSimulation() {
 
         if (isLive) {
             dot.style.cssText = "width:10px;height:10px;border-radius:50%;background:#06b6d4;box-shadow:0 0 8px #06b6d4;display:inline-block";
-            label.innerText = "Receiving data";
+            label.innerText = "Receiving thermal feed";
             document.getElementById("lastUpdatedTime").innerText = new Date(data.last_update_time * 1000).toLocaleTimeString('en-US', { hour12: false });
-            addLog(`Live temp: ${Number(data.latest_temp).toFixed(2)}°C`, "INFO");
+            const avg = data.thermal_stats && Number.isFinite(Number(data.thermal_stats.avg_temp))
+                ? Number(data.thermal_stats.avg_temp).toFixed(2)
+                : null;
+            addLog(`Live hotspot: ${Number(data.latest_temp).toFixed(2)}°C${avg ? ` | avg: ${avg}°C` : ''}`, "INFO");
         } else {
             dot.style.cssText = "width:10px;height:10px;border-radius:50%;background:#ef4444;box-shadow:0 0 8px #ef4444;display:inline-block";
             label.innerText = "No signal";

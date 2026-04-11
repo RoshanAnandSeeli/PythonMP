@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>THERMAL_OS // PHONE_SENSOR</title>
+    <title>THERMAL_OS // THERMAL_CAMERA</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&family=JetBrains+Mono:wght@300;400;700&display=swap" rel="stylesheet">
@@ -77,10 +77,31 @@
         .temp-label { font-family: 'JetBrains Mono',monospace; font-size: 0.65rem; color: var(--text-dim); letter-spacing: 3px; margin-bottom: 0.5rem; }
         .temp-value { font-family: 'JetBrains Mono',monospace; font-size: 3.5rem; font-weight: 700; color: #fff; text-shadow: 0 0 20px rgba(6,182,212,0.4); }
         .temp-value span { font-size: 1.2rem; color: var(--text-dim); }
-        .accel-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.75rem; }
-        .accel-item { background: rgba(0,0,0,0.3); border: 1px solid var(--border-glass); border-radius: 0.5rem; padding: 0.75rem; text-align: center; }
-        .accel-item .label { font-family: 'JetBrains Mono',monospace; font-size: 0.6rem; color: var(--text-dim); margin-bottom: 0.25rem; }
-        .accel-item .val { font-family: 'JetBrains Mono',monospace; font-size: 0.9rem; color: var(--cyan-glow); font-weight: 700; }
+        .cam-preview {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border-glass);
+            border-radius: 0.75rem;
+            overflow: hidden;
+            aspect-ratio: 4/3;
+            position: relative;
+        }
+        .cam-preview video,
+        .cam-preview canvas {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            object-fit: cover;
+        }
+        .cam-preview canvas {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+        .cam-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.75rem; }
+        .cam-item { background: rgba(0,0,0,0.3); border: 1px solid var(--border-glass); border-radius: 0.5rem; padding: 0.75rem; text-align: center; }
+        .cam-item .label { font-family: 'JetBrains Mono',monospace; font-size: 0.6rem; color: var(--text-dim); margin-bottom: 0.25rem; }
+        .cam-item .val { font-family: 'JetBrains Mono',monospace; font-size: 0.9rem; color: var(--cyan-glow); font-weight: 700; }
         .start-btn { background: var(--cyan-glow); color: var(--bg-dark); border: none; padding: 1rem; border-radius: 0.5rem; font-weight: 900; font-family: 'JetBrains Mono',monospace; font-size: 0.85rem; letter-spacing: 2px; cursor: pointer; box-shadow: 0 0 15px var(--cyan-glow); width: 100%; }
         .status-row { display: flex; align-items: center; gap: 0.75rem; font-family: 'JetBrains Mono',monospace; font-size: 0.75rem; }
         .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--red-glow); box-shadow: 0 0 8px var(--red-glow); }
@@ -98,24 +119,28 @@
     <div class="panel">
         <div class="panel-header">
             <span class="pulse-dot"></span>
-            PHONE_SENSOR_LINK
+            THERMAL_CAMERA_LINK
         </div>
         <div class="panel-body">
             <div class="temp-display">
-                <div class="temp-label">_COMPUTED_TEMP_EQUIVALENT</div>
+                <div class="temp-label">_HOTSPOT_TEMP_FROM_CAMERA</div>
                 <div class="temp-value"><span id="tempValue">--</span><span>°C</span></div>
             </div>
-            <div class="accel-grid">
-                <div class="accel-item"><div class="label">_ACCEL_X</div><div class="val" id="accelX">0.00</div></div>
-                <div class="accel-item"><div class="label">_ACCEL_Y</div><div class="val" id="accelY">0.00</div></div>
-                <div class="accel-item"><div class="label">_ACCEL_Z</div><div class="val" id="accelZ">0.00</div></div>
+            <div class="cam-preview">
+                <video id="cameraFeed" autoplay playsinline muted></video>
+                <canvas id="heatOverlay"></canvas>
+            </div>
+            <div class="cam-stats">
+                <div class="cam-item"><div class="label">_AVG_TEMP</div><div class="val" id="avgTemp">0.00</div></div>
+                <div class="cam-item"><div class="label">_FRAME_ROWS</div><div class="val" id="frameRows">0</div></div>
+                <div class="cam-item"><div class="label">_FRAME_COLS</div><div class="val" id="frameCols">0</div></div>
             </div>
             <div class="status-row">
                 <span class="status-dot" id="statusDot"></span>
                 <span id="connectionStatus">WAITING_FOR_PERMISSION...</span>
             </div>
-            <button class="start-btn" id="startBtn">ACTIVATE_SENSORS</button>
-            <div id="sensorStatus" style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--red-glow)">SENSORS_NOT_STARTED</div>
+            <button class="start-btn" id="startBtn">ACTIVATE_THERMAL_CAMERA</button>
+            <div id="sensorStatus" style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--red-glow)">CAMERA_NOT_STARTED</div>
             <div class="log-box" id="logs"><div class="log-line">> SYSTEM_INITIALIZED</div></div>
         </div>
     </div>
@@ -128,63 +153,143 @@
             logs.prepend(e);
             while (logs.children.length > 20) logs.removeChild(logs.lastChild);
         }
-        let currentX=0, currentY=0, currentZ=0, smoothedIntensity=0, isSending=false;
+        const THERMAL_ROWS = 24;
+        const THERMAL_COLS = 32;
+        const TEMP_MIN = 24.0;
+        const TEMP_MAX = 42.0;
 
-        document.getElementById('startBtn').addEventListener('click', async () => {
-            if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
-                try {
-                    const perm = await DeviceMotionEvent.requestPermission();
-                    if (perm === 'granted') startSensors();
-                    else { document.getElementById('sensorStatus').innerText='PERMISSION_DENIED'; log('Permission denied','err'); }
-                } catch(e) { log(`Error: ${e}`,'err'); }
-            } else { startSensors(); }
-        });
+        const video = document.getElementById('cameraFeed');
+        const overlay = document.getElementById('heatOverlay');
+        const overlayCtx = overlay.getContext('2d');
+        const sampleCanvas = document.createElement('canvas');
+        sampleCanvas.width = THERMAL_COLS;
+        sampleCanvas.height = THERMAL_ROWS;
+        const sampleCtx = sampleCanvas.getContext('2d', { willReadFrequently: true });
 
-        function startSensors() {
-            document.getElementById('startBtn').style.display='none';
-            document.getElementById('sensorStatus').innerText='SENSORS_ACTIVE';
-            document.getElementById('sensorStatus').style.color='#06b6d4';
-            document.getElementById('statusDot').classList.add('active');
-            log('Sensors activated','ok');
-            smoothedIntensity = 28.0;
-            window.addEventListener('devicemotion', (event) => {
-                const accel = event.accelerationIncludingGravity || event.acceleration;
-                if (!accel) return;
-                currentX = accel.x||0; currentY = accel.y||0; currentZ = accel.z||0;
-                document.getElementById('accelX').innerText = currentX.toFixed(2);
-                document.getElementById('accelY').innerText = currentY.toFixed(2);
-                document.getElementById('accelZ').innerText = currentZ.toFixed(2);
-                const intensity = Math.sqrt(currentX**2 + currentY**2 + currentZ**2);
-                let targetTemp = 28.0;
-                if (intensity > 9.8) targetTemp = 28.0 + (intensity - 9.8) * 4.0;
-                smoothedIntensity = (smoothedIntensity * 0.9) + (targetTemp * 0.1);
-                smoothedIntensity = Math.min(100, Math.max(20, smoothedIntensity));
-                document.getElementById('tempValue').innerText = smoothedIntensity.toFixed(2);
-            });
+        let latestFrame = null;
+        let isSending = false;
+
+        document.getElementById('startBtn').addEventListener('click', startCamera);
+
+        async function startCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: 'environment' },
+                    audio: false
+                });
+                video.srcObject = stream;
+                await video.play();
+
+                document.getElementById('startBtn').style.display='none';
+                document.getElementById('sensorStatus').innerText='CAMERA_ACTIVE';
+                document.getElementById('sensorStatus').style.color='#06b6d4';
+                document.getElementById('statusDot').classList.add('active');
+                log('Thermal camera stream activated', 'ok');
+
+                resizeOverlay();
+                requestAnimationFrame(processFrame);
+            } catch (e) {
+                document.getElementById('sensorStatus').innerText='CAMERA_PERMISSION_DENIED';
+                log(`Camera error: ${e.message}`, 'err');
+            }
+        }
+
+        function resizeOverlay() {
+            overlay.width = video.clientWidth || 320;
+            overlay.height = video.clientHeight || 240;
+        }
+
+        function intensityToTemp(intensity) {
+            return TEMP_MIN + (intensity / 255) * (TEMP_MAX - TEMP_MIN);
+        }
+
+        function processFrame() {
+            if (!video.videoWidth || !video.videoHeight) {
+                requestAnimationFrame(processFrame);
+                return;
+            }
+
+            sampleCtx.drawImage(video, 0, 0, THERMAL_COLS, THERMAL_ROWS);
+            const img = sampleCtx.getImageData(0, 0, THERMAL_COLS, THERMAL_ROWS).data;
+
+            const matrix = [];
+            let maxTemp = -Infinity;
+            let avgTempAcc = 0;
+
+            for (let r = 0; r < THERMAL_ROWS; r++) {
+                const row = [];
+                for (let c = 0; c < THERMAL_COLS; c++) {
+                    const idx = (r * THERMAL_COLS + c) * 4;
+                    const gray = (img[idx] + img[idx + 1] + img[idx + 2]) / 3;
+                    const t = intensityToTemp(gray);
+                    row.push(Number(t.toFixed(2)));
+                    if (t > maxTemp) maxTemp = t;
+                    avgTempAcc += t;
+                }
+                matrix.push(row);
+            }
+
+            const avgTemp = avgTempAcc / (THERMAL_ROWS * THERMAL_COLS);
+            latestFrame = matrix;
+
+            document.getElementById('tempValue').innerText = maxTemp.toFixed(2);
+            document.getElementById('avgTemp').innerText = avgTemp.toFixed(2);
+            document.getElementById('frameRows').innerText = THERMAL_ROWS;
+            document.getElementById('frameCols').innerText = THERMAL_COLS;
+
+            drawOverlay(matrix);
+            requestAnimationFrame(processFrame);
+        }
+
+        function drawOverlay(matrix) {
+            overlayCtx.clearRect(0, 0, overlay.width, overlay.height);
+            const cw = overlay.width / THERMAL_COLS;
+            const ch = overlay.height / THERMAL_ROWS;
+
+            for (let r = 0; r < THERMAL_ROWS; r++) {
+                for (let c = 0; c < THERMAL_COLS; c++) {
+                    const t = matrix[r][c];
+                    const pct = (t - TEMP_MIN) / (TEMP_MAX - TEMP_MIN);
+                    const hue = 220 - pct * 220;
+                    overlayCtx.fillStyle = `hsla(${hue}, 95%, 55%, 0.45)`;
+                    overlayCtx.fillRect(c * cw, r * ch, cw + 0.5, ch + 0.5);
+                }
+            }
         }
 
         setInterval(async () => {
-            if (smoothedIntensity === 0 || isSending) return;
+            if (!latestFrame || isSending) return;
             isSending = true;
+
             try {
-                const res = await fetch("/sensor-data", {
-                    method:"POST", headers:{"Content-Type":"application/json"},
-                    body: JSON.stringify({ temperature: smoothedIntensity.toFixed(2), x: currentX.toFixed(2), y: currentY.toFixed(2), z: currentZ.toFixed(2) })
+                const res = await fetch('/sensor-data', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        source: 'thermal_camera',
+                        thermal_frame: latestFrame,
+                        timestamp: Date.now()
+                    })
                 });
+
                 if (res.ok) {
                     document.getElementById('connectionStatus').innerText='TRANSMITTING_OK';
                     document.getElementById('statusDot').classList.add('active');
-                    log(`Sent: ${smoothedIntensity.toFixed(2)}°C`, 'ok');
+                    log('Thermal frame sent', 'ok');
                 } else {
                     document.getElementById('connectionStatus').innerText='SERVER_ERROR';
-                    log(`Failed: HTTP ${res.status}`,'err');
+                    log(`Failed: HTTP ${res.status}`, 'err');
                 }
-            } catch(e) {
+            } catch (e) {
                 document.getElementById('connectionStatus').innerText='NETWORK_DROP';
                 document.getElementById('statusDot').classList.remove('active');
-                log(`Network: ${e.message}`,'err');
-            } finally { isSending = false; }
-        }, 3000);
+                log(`Network: ${e.message}`, 'err');
+            } finally {
+                isSending = false;
+            }
+        }, 2000);
+
+        window.addEventListener('resize', resizeOverlay);
     </script>
 </body>
 </html>

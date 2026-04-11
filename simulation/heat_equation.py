@@ -1,4 +1,15 @@
-l
+import numpy as np
+
+
+# Thermal conductivity alpha scales with TDP.
+def get_alpha(tdp):
+    if tdp >= 300:
+        return 0.35
+    if tdp >= 100:
+        return 0.28
+    if tdp >= 50:
+        return 0.22
+    return 0.15
 
 
 def simulate_heat(grid_size, source_temp, steps=300, core_layout=None, tdp=65.0):
