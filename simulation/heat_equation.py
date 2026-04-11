@@ -1,16 +1,4 @@
-import numpy as np
-
-
-# Thermal conductivity alpha scales with TDP — higher TDP chips spread heat faster
-def get_alpha(tdp):
-    if tdp >= 300:
-        return 0.35   # Server CPUs / high-end GPUs
-    elif tdp >= 100:
-        return 0.28   # Desktop CPUs / mid GPUs
-    elif tdp >= 50:
-        return 0.22   # Standard desktop CPUs
-    else:
-        return 0.15   # Mobile / low power chips
+l
 
 
 def simulate_heat(grid_size, source_temp, steps=300, core_layout=None, tdp=65.0):
