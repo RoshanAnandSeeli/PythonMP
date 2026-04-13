@@ -35,3 +35,28 @@ User Browser → Web Interface (Flask) → Thermal Simulation Engine → Visuali
 | Susmitha A | URK25CS1167 | [@susmithaa-a](https://github.com/susmithaa-a) |
 | Sham Kumar | URK25CS1222 | [@Sham11102007](https://github.com/Sham11102007) |
 | Bermin Akash V | URK25CS1070 | [@berminakash-hue](https://github.com/berminakash-hue) |
+
+## Quick HTTPS Tunnel For Thermal Camera Testing
+
+Mobile browsers require HTTPS to allow camera access. Use this temporary workflow for local testing.
+
+1. Start the Flask app in one terminal:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\start_flask_dev.ps1
+```
+
+2. Start the HTTPS tunnel in a second terminal:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\start_https_tunnel.ps1
+```
+
+3. Copy the `https://*.loca.lt` URL from terminal output and open it on your phone.
+
+4. Log in, open `/sensor`, tap `ACTIVATE_THERMAL_CAMERA`, and allow camera permission.
+
+Notes:
+- If `npx` asks to install `localtunnel`, approve it.
+- Keep both terminals running while testing.
+- Localtunnel URLs are temporary and will change each run.
