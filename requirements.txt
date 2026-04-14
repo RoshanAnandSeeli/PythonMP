@@ -1,8 +1,14 @@
-numpy
-matplotlib
+# Core framework
 flask
-scipy
 gunicorn
+python-dotenv
+
+# Database
 flask-sqlalchemy
 psycopg2-binary
-python-dotenv
+
+# Computation
+numpy
+
+# WhatsApp chatbot (Twilio)
+twilio

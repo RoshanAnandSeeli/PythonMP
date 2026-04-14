@@ -157,7 +157,7 @@ function addLog(message, type = "PROCESS") {
 function renderHeatmap(grid) {
     Plotly.react("heatmap", [{
         z: grid, type: "surface",
-        colorscale: [[0,'#030712'],[0.2,'#1e1b4b'],[0.4,'#4c1d95'],[0.6,'#06b6d4'],[0.8,'#f59e0b'],[1,'#ef4444']],
+        colorscale: [[0, '#030712'], [0.2, '#1e1b4b'], [0.4, '#4c1d95'], [0.6, '#06b6d4'], [0.8, '#f59e0b'], [1, '#ef4444']],
         contours: { z: { show: true, usecolormap: true, highlightcolor: "#fff", project: { z: true } } },
         showscale: true,
         colorbar: {

@@ -1,14 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Thermal OS — Sign In</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&family=JetBrains+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
         body {
             background: #030712;
@@ -19,21 +26,21 @@
             align-items: center;
             justify-content: center;
             background-image:
-                radial-gradient(circle at 30% 50%, rgba(6,182,212,0.06) 0%, transparent 50%),
-                radial-gradient(circle at 70% 50%, rgba(139,92,246,0.05) 0%, transparent 50%),
-                linear-gradient(rgba(6,182,212,0.04) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(6,182,212,0.04) 1px, transparent 1px);
+                radial-gradient(circle at 30% 50%, rgba(6, 182, 212, 0.06) 0%, transparent 50%),
+                radial-gradient(circle at 70% 50%, rgba(139, 92, 246, 0.05) 0%, transparent 50%),
+                linear-gradient(rgba(6, 182, 212, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(6, 182, 212, 0.04) 1px, transparent 1px);
             background-size: cover, cover, 60px 60px, 60px 60px;
         }
 
         .login-card {
-            background: rgba(8,12,24,0.9);
-            border: 1px solid rgba(6,182,212,0.15);
+            background: rgba(8, 12, 24, 0.9);
+            border: 1px solid rgba(6, 182, 212, 0.15);
             border-radius: 1.25rem;
             padding: 3rem;
             width: 100%;
             max-width: 420px;
-            box-shadow: 0 0 40px rgba(6,182,212,0.1);
+            box-shadow: 0 0 40px rgba(6, 182, 212, 0.1);
         }
 
         .brand {
@@ -74,8 +81,8 @@
         }
 
         .form-group input {
-            background: rgba(0,0,0,0.4);
-            border: 1px solid rgba(6,182,212,0.15);
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(6, 182, 212, 0.15);
             border-radius: 0.5rem;
             padding: 0.85rem 1rem;
             color: #f1f5f9;
@@ -85,7 +92,9 @@
             width: 100%;
         }
 
-        .form-group input:focus { border-color: rgba(6,182,212,0.5); }
+        .form-group input:focus {
+            border-color: rgba(6, 182, 212, 0.5);
+        }
 
         .error-msg {
             color: #ef4444;
@@ -105,11 +114,13 @@
             font-weight: 900;
             font-size: 1rem;
             cursor: pointer;
-            box-shadow: 0 0 15px rgba(6,182,212,0.4);
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.4);
             margin-top: 0.5rem;
         }
 
-        .btn-submit:hover { box-shadow: 0 0 25px rgba(6,182,212,0.6); }
+        .btn-submit:hover {
+            box-shadow: 0 0 25px rgba(6, 182, 212, 0.6);
+        }
 
         .back-link {
             display: block;
@@ -120,7 +131,9 @@
             text-decoration: none;
         }
 
-        .back-link:hover { color: #f1f5f9; }
+        .back-link:hover {
+            color: #f1f5f9;
+        }
 
         .hint {
             text-align: center;
@@ -131,6 +144,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="login-card">
         <div class="brand">
@@ -178,4 +192,5 @@
         }
     </script>
 </body>
+
 </html>

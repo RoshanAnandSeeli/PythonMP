@@ -1,14 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Thermal OS — Thermal Profiling Platform</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700;900&family=JetBrains+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
         body {
             background: #030712;
@@ -23,10 +30,10 @@
             position: fixed;
             inset: 0;
             background-image:
-                radial-gradient(circle at 20% 50%, rgba(6,182,212,0.08) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(139,92,246,0.06) 0%, transparent 50%),
-                linear-gradient(rgba(6,182,212,0.04) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(6,182,212,0.04) 1px, transparent 1px);
+                radial-gradient(circle at 20% 50%, rgba(6, 182, 212, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.06) 0%, transparent 50%),
+                linear-gradient(rgba(6, 182, 212, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(6, 182, 212, 0.04) 1px, transparent 1px);
             background-size: cover, cover, 60px 60px, 60px 60px;
             z-index: -1;
         }
@@ -36,7 +43,7 @@
             justify-content: space-between;
             align-items: center;
             padding: 1.5rem 4rem;
-            border-bottom: 1px solid rgba(6,182,212,0.1);
+            border-bottom: 1px solid rgba(6, 182, 212, 0.1);
         }
 
         .logo {
@@ -48,7 +55,11 @@
             color: transparent;
         }
 
-        .nav-links { display: flex; gap: 2rem; align-items: center; }
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
 
         .nav-links a {
             color: #64748b;
@@ -57,11 +68,13 @@
             font-weight: 500;
         }
 
-        .nav-links a:hover { color: #f1f5f9; }
+        .nav-links a:hover {
+            color: #f1f5f9;
+        }
 
         .btn-login {
             background: transparent;
-            border: 1px solid rgba(6,182,212,0.4);
+            border: 1px solid rgba(6, 182, 212, 0.4);
             color: #06b6d4;
             padding: 0.5rem 1.5rem;
             border-radius: 0.5rem;
@@ -71,7 +84,9 @@
             text-decoration: none;
         }
 
-        .btn-login:hover { background: rgba(6,182,212,0.1); }
+        .btn-login:hover {
+            background: rgba(6, 182, 212, 0.1);
+        }
 
         .hero {
             display: flex;
@@ -84,8 +99,8 @@
         }
 
         .badge {
-            background: rgba(6,182,212,0.1);
-            border: 1px solid rgba(6,182,212,0.3);
+            background: rgba(6, 182, 212, 0.1);
+            border: 1px solid rgba(6, 182, 212, 0.3);
             color: #06b6d4;
             padding: 0.4rem 1rem;
             border-radius: 100px;
@@ -117,7 +132,12 @@
             font-weight: 300;
         }
 
-        .hero-btns { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+        .hero-btns {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
 
         .btn-primary {
             background: #06b6d4;
@@ -127,10 +147,12 @@
             font-weight: 900;
             font-size: 1rem;
             text-decoration: none;
-            box-shadow: 0 0 20px rgba(6,182,212,0.4);
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.4);
         }
 
-        .btn-primary:hover { box-shadow: 0 0 35px rgba(6,182,212,0.6); }
+        .btn-primary:hover {
+            box-shadow: 0 0 35px rgba(6, 182, 212, 0.6);
+        }
 
         .btn-secondary {
             background: transparent;
@@ -140,10 +162,12 @@
             font-weight: 700;
             font-size: 1rem;
             text-decoration: none;
-            border: 1px solid rgba(255,255,255,0.15);
+            border: 1px solid rgba(255, 255, 255, 0.15);
         }
 
-        .btn-secondary:hover { border-color: rgba(255,255,255,0.3); }
+        .btn-secondary:hover {
+            border-color: rgba(255, 255, 255, 0.3);
+        }
 
         .features {
             display: grid;
@@ -155,8 +179,8 @@
         }
 
         .feature-card {
-            background: rgba(8,12,24,0.85);
-            border: 1px solid rgba(6,182,212,0.12);
+            background: rgba(8, 12, 24, 0.85);
+            border: 1px solid rgba(6, 182, 212, 0.12);
             border-radius: 1rem;
             padding: 2rem;
             display: flex;
@@ -165,9 +189,10 @@
         }
 
         .feature-icon {
-            width: 48px; height: 48px;
-            background: rgba(6,182,212,0.1);
-            border: 1px solid rgba(6,182,212,0.2);
+            width: 48px;
+            height: 48px;
+            background: rgba(6, 182, 212, 0.1);
+            border: 1px solid rgba(6, 182, 212, 0.2);
             border-radius: 0.75rem;
             display: flex;
             align-items: center;
@@ -175,19 +200,28 @@
             font-size: 1.5rem;
         }
 
-        .feature-card h3 { font-size: 1.1rem; font-weight: 700; }
-        .feature-card p { color: #64748b; font-size: 0.9rem; line-height: 1.6; }
+        .feature-card h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .feature-card p {
+            color: #64748b;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
 
         footer {
             text-align: center;
             padding: 3rem;
-            border-top: 1px solid rgba(6,182,212,0.1);
+            border-top: 1px solid rgba(6, 182, 212, 0.1);
             color: #475569;
             font-family: 'JetBrains Mono', monospace;
             font-size: 0.75rem;
         }
     </style>
 </head>
+
 <body>
     <nav>
         <div class="logo">Thermal OS</div>
@@ -201,10 +235,12 @@
     <section class="hero">
         <div class="badge">Karunya University — Micro Project</div>
         <h1>Thermal Profiling of<br><span>Electronic Components</span></h1>
-        <p>Simulate heat diffusion across CPU and GPU chips using partial differential equations. Visualize thermal hotspots and evaluate cooling strategies in real time.</p>
+        <p>Simulate heat diffusion across CPU and GPU chips using partial differential equations. Visualize thermal
+            hotspots and evaluate cooling strategies in real time.</p>
         <div class="hero-btns">
             <a href="/login" class="btn-primary">Launch App</a>
-            <a href="https://github.com/RoshanAnandSeeli/PythonMP" target="_blank" class="btn-secondary">View on GitHub</a>
+            <a href="https://github.com/RoshanAnandSeeli/PythonMP" target="_blank" class="btn-secondary">View on
+                GitHub</a>
         </div>
     </section>
 
@@ -212,7 +248,8 @@
         <div class="feature-card">
             <div class="feature-icon">🔥</div>
             <h3>PDE Heat Simulation</h3>
-            <p>Solves the 2D heat diffusion equation using finite-difference method with TDP-based thermal conductivity.</p>
+            <p>Solves the 2D heat diffusion equation using finite-difference method with TDP-based thermal conductivity.
+            </p>
         </div>
         <div class="feature-card">
             <div class="feature-icon">💾</div>
@@ -222,7 +259,8 @@
         <div class="feature-card">
             <div class="feature-icon">📡</div>
             <h3>Live Sensor Feed</h3>
-            <p>Connect your phone as a live sensor — accelerometer data is mapped to temperature and fed into the simulation in real time.</p>
+            <p>Connect your phone as a live sensor — accelerometer data is mapped to temperature and fed into the
+                simulation in real time.</p>
         </div>
         <div class="feature-card">
             <div class="feature-icon">📊</div>
@@ -245,4 +283,5 @@
         Built by Team Roshan — Karunya University CS Dept &nbsp;|&nbsp; v3.1.0
     </footer>
 </body>
+
 </html>
