@@ -8,7 +8,9 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&family=JetBrains+Mono:wght@300;400;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&family=JetBrains+Mono:wght@300;400;700&display=swap"
+        rel="stylesheet">
 
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" href="/static/style.css">
@@ -54,7 +56,8 @@
                     <span>Parameters</span>
                 </div>
                 <div class="mode-switcher">
-                    <button id="btnProfileMode" onclick="setMode('profile')" class="mode-btn active">Profile Mode</button>
+                    <button id="btnProfileMode" onclick="setMode('profile')" class="mode-btn active">Profile
+                        Mode</button>
                     <button id="btnLiveMode" onclick="setMode('live')" class="mode-btn">Live Mode</button>
                 </div>
                 <div class="terminal-body">
@@ -71,7 +74,9 @@
                         <div class="parameter-group">
                             <label>CPU Load: <span id="loadLabel">100</span>%</label>
                             <div class="input-wrapper">
-                                <input type="range" id="loadPercent" value="100" min="10" max="100" step="5" oninput="document.getElementById('loadLabel').innerText=this.value" style="width:100%">
+                                <input type="range" id="loadPercent" value="100" min="10" max="100" step="5"
+                                    oninput="document.getElementById('loadLabel').innerText=this.value"
+                                    style="width:100%">
                             </div>
                         </div>
                         <div class="parameter-group">
@@ -91,17 +96,22 @@
                         <div class="parameter-group">
                             <label>Thermal Camera Hotspot</label>
                             <div class="input-wrapper">
-                                <span id="liveTempValue" style="font-family:'JetBrains Mono',monospace;font-size:1.1rem;padding:0.75rem 0;flex:1">--</span>
+                                <span id="liveTempValue"
+                                    style="font-family:'JetBrains Mono',monospace;font-size:1.1rem;padding:0.75rem 0;flex:1">--</span>
                                 <span class="unit">°C</span>
                             </div>
                         </div>
                         <div class="parameter-group">
                             <label>Camera Feed Status</label>
                             <div style="display:flex;align-items:center;gap:0.75rem;padding:0.5rem 0">
-                                <span id="sensorStatusLight" style="width:10px;height:10px;border-radius:50%;background:#ef4444;box-shadow:0 0 8px #ef4444;display:inline-block"></span>
-                                <span style="font-family:'JetBrains Mono',monospace;font-size:0.75rem" id="sensorStatusLabel">Waiting</span>
+                                <span id="sensorStatusLight"
+                                    style="width:10px;height:10px;border-radius:50%;background:#ef4444;box-shadow:0 0 8px #ef4444;display:inline-block"></span>
+                                <span style="font-family:'JetBrains Mono',monospace;font-size:0.75rem"
+                                    id="sensorStatusLabel">Waiting</span>
                             </div>
-                            <div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--text-dim);margin-top:0.25rem">Last Update: <span id="lastUpdatedTime">--:--:--</span></div>
+                            <div
+                                style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--text-dim);margin-top:0.25rem">
+                                Last Update: <span id="lastUpdatedTime">--:--:--</span></div>
                         </div>
                         <div class="parameter-group">
                             <label>Grid Resolution</label>
