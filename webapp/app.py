@@ -724,31 +724,15 @@ def whatsapp_webhook():
                 "Send *1* to see the full catalog."
             )
 
-    # --- OPTION 2: Live Sensor Data ---
+    # --- OPTION 2: Live Thermal Camera link ---
     elif incoming_msg == "2":
-        with _sensor_lock:
-            temp = latest_sensor_temp
-            update_time = last_sensor_update
-            stats = dict(latest_thermal_stats)
-
-        if update_time:
-            age = time.time() - update_time
-            status = "🟢 Active" if age <= 10 else "🟡 Stale" if age <= 60 else "🔴 Offline"
-            last_ts = datetime.fromtimestamp(update_time, tz=timezone.utc).strftime("%H:%M:%S UTC")
-        else:
-            age = 0
-            status = "🔴 No data yet"
-            last_ts = "N/A"
-
         msg.body(
-            "📡 *Live Sensor Status*\n"
+            "📡 *Live Thermal Camera*\n"
             "━━━━━━━━━━━━━━━━━━━━━\n\n"
-            f"• Status: {status}\n"
-            f"• Hotspot Temp: {temp:.2f}°C\n"
-            f"• Avg Temp: {stats.get('avg_temp', 0):.2f}°C\n"
-            f"• Frame Size: {stats.get('rows', 0)} × {stats.get('cols', 0)}\n"
-            f"• Last Update: {last_ts}\n\n"
-            "Send *hi* for main menu."
+            "👉 View real-time thermal monitoring:\n"
+            "https://thermalprofiling.tech/sensor\n\n"
+            "🌐 Open the link in your browser.\n\n"
+            "Send *hi* to return to menu."
         )
 
     # --- OPTION 3: Exit ---
