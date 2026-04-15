@@ -219,6 +219,132 @@
             font-family: 'JetBrains Mono', monospace;
             font-size: 0.75rem;
         }
+
+        /* ── WhatsApp Navbar CTA ── */
+        .wa-cta-wrap {
+            position: relative;
+        }
+
+        .btn-whatsapp {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            background: #25D366;
+            color: #fff;
+            text-decoration: none;
+            padding: 0.5rem 1.3rem;
+            border-radius: 100px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.82rem;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+            white-space: nowrap;
+            box-shadow: 0 2px 12px rgba(37, 211, 102, 0.35);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+            animation: wa-pulse 2.5s infinite;
+        }
+
+        .btn-whatsapp:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 22px rgba(37, 211, 102, 0.5);
+            color: #fff;
+            animation: none;
+        }
+
+        .btn-whatsapp:active {
+            transform: scale(0.98);
+        }
+
+        .btn-whatsapp svg {
+            width: 18px;
+            height: 18px;
+            fill: #fff;
+            flex-shrink: 0;
+        }
+
+        .wa-live-badge {
+            background: #fff;
+            color: #25D366;
+            font-size: 0.6rem;
+            font-weight: 800;
+            padding: 2px 6px;
+            border-radius: 6px;
+            line-height: 1;
+            letter-spacing: 0.5px;
+            flex-shrink: 0;
+        }
+
+        @keyframes wa-pulse {
+            0%   { box-shadow: 0 2px 12px rgba(37, 211, 102, 0.35), 0 0 0 0 rgba(37, 211, 102, 0.5); }
+            70%  { box-shadow: 0 2px 12px rgba(37, 211, 102, 0.35), 0 0 0 10px rgba(37, 211, 102, 0); }
+            100% { box-shadow: 0 2px 12px rgba(37, 211, 102, 0.35), 0 0 0 0 rgba(37, 211, 102, 0); }
+        }
+
+        /* Tooltip on hover */
+        .wa-cta-tip {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            background: rgba(8, 12, 24, 0.94);
+            border: 1px solid rgba(37, 211, 102, 0.25);
+            color: #cbd5e1;
+            font-size: 0.7rem;
+            line-height: 1.55;
+            padding: 10px 14px;
+            border-radius: 10px;
+            width: 240px;
+            pointer-events: none;
+            opacity: 0;
+            transform: translateY(-4px);
+            transition: opacity 0.25s ease, transform 0.25s ease;
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.45);
+            font-family: 'Outfit', sans-serif;
+            z-index: 100;
+        }
+
+        .wa-cta-tip strong {
+            color: #25D366;
+        }
+
+        .wa-cta-wrap:hover .wa-cta-tip {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Mobile nav adjustments */
+        @media (max-width: 640px) {
+            nav {
+                padding: 1rem 1.5rem;
+            }
+            .nav-links {
+                gap: 0.8rem;
+            }
+            .btn-whatsapp {
+                padding: 0.45rem 0.9rem;
+                font-size: 0.75rem;
+            }
+            .wa-cta-tip {
+                width: 200px;
+                font-size: 0.65rem;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .btn-whatsapp .wa-label,
+            .btn-whatsapp .wa-live-badge {
+                display: none;
+            }
+            .btn-whatsapp {
+                padding: 0.5rem;
+                border-radius: 50%;
+            }
+            .btn-whatsapp svg {
+                width: 22px;
+                height: 22px;
+            }
+        }
     </style>
 </head>
 
@@ -229,6 +355,21 @@
             <a href="#features">Features</a>
             <a href="https://github.com/RoshanAnandSeeli/PythonMP" target="_blank">GitHub</a>
             <a href="/login" class="btn-login">Sign In</a>
+            <div class="wa-cta-wrap">
+                <a href="https://wa.me/14155238886?text=join%20note-shake"
+                   target="_blank" rel="noopener noreferrer"
+                   class="btn-whatsapp" id="btn-whatsapp"
+                   aria-label="Chat on WhatsApp"
+                   onclick="console.log('WhatsApp CTA clicked')">
+                    <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M16.004 0h-.008C7.174 0 0 7.176 0 16c0 3.5 1.128 6.744 3.046 9.378L1.054 31.29l6.118-1.958A15.905 15.905 0 0016.004 32C24.826 32 32 24.822 32 16S24.826 0 16.004 0zm9.338 22.594c-.39 1.1-1.932 2.014-3.164 2.28-.844.18-1.946.322-5.656-1.216-4.748-1.966-7.804-6.78-8.038-7.096-.226-.316-1.882-2.508-1.882-4.784s1.192-3.396 1.614-3.862c.39-.43.922-.644 1.41-.644.17 0 .324.008.462.016.422.018.634.042.912.706.348.83 1.194 2.91 1.298 3.124.106.214.212.5.074.796-.13.302-.244.49-.464.752-.214.262-.44.464-.654.748-.196.248-.416.514-.18.934.238.414 1.058 1.748 2.272 2.83 1.562 1.394 2.878 1.826 3.286 2.028.408.202.644.172.882-.098.244-.276 1.04-1.212 1.318-1.63.272-.416.548-.348.924-.21.378.14 2.394 1.13 2.804 1.336.408.208.682.31.782.482.098.168.098.988-.292 2.088z"/></svg>
+                    <span class="wa-label">🚀 Start Chatbot</span>
+                    <span class="wa-live-badge">LIVE</span>
+                </a>
+                <div class="wa-cta-tip">
+                    👉 Join first: <strong>'join note-shake'</strong><br>
+                    Then type <strong>'hi'</strong> to start 🚀
+                </div>
+            </div>
         </div>
     </nav>
 
@@ -282,6 +423,8 @@
     <footer>
         Built by Team Roshan — Karunya University CS Dept &nbsp;|&nbsp; v3.1.0
     </footer>
+
+
 </body>
 
 </html>
