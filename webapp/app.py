@@ -27,7 +27,7 @@ import time
 import threading
 from functools import wraps
 from datetime import datetime, timezone
-
+from flask import Response
 from typing import Dict, Optional
 
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for
@@ -669,94 +669,108 @@ def whatsapp_webhook():
     Twilio webhook for incoming WhatsApp messages.
     Stateless, menu-driven Thermal Profiling Assistant.
     Returns valid TwiML via MessagingResponse.
+
+    Uses resp.message("text") pattern for guaranteed valid TwiML.
     """
+    try:
+        # ── Step 1: Read the incoming message ──
+        incoming_msg = request.values.get("Body", "").strip().lower()
+        app.logger.info("WhatsApp incoming: '%s'", incoming_msg)
 
-    # ── Step 1: Read the incoming message ──
-    incoming_msg = request.form.get('Body', '').strip().lower()
+        # ── Step 2: Build reply text based on menu logic ──
+        reply_text = ""
 
-    # ── Step 2: Create Twilio MessagingResponse ──
-    resp = MessagingResponse()
-    msg = resp.message()
-
-    # ── Step 3: Menu logic ──
-
-    # --- GREETING: Main menu ---
-    if incoming_msg in ("hi", "hello", "hey", "menu", "start"):
-        msg.body(
-            "🌡️ *Thermal Profiling Assistant*\n"
-            "━━━━━━━━━━━━━━━━━━━━━\n\n"
-            "Welcome! I can help you explore processor\n"
-            "thermal profiles and live sensor data.\n\n"
-            "1️⃣  *Processor Catalog* (18 chips)\n"
-            "2️⃣  *Live Sensor Status*\n"
-            "3️⃣  *Exit*\n\n"
-            "Reply with *1*, *2*, or *3*."
-        )
-
-    # --- OPTION 1: Full categorized processor catalog ---
-    elif incoming_msg == "1":
-        msg.body(_PROCESSOR_CATALOG)
-
-    # --- OPTION p1 through p18: Individual processor details ---
-    elif incoming_msg.startswith("p") and incoming_msg[1:].isdigit():
-        proc_num = int(incoming_msg[1:])
-
-        if 1 <= proc_num <= len(PROCESSORS):
-            p = PROCESSORS[proc_num - 1]
-            msg.body(
-                f"🔍 *{p['name']}*\n"
-                f"━━━━━━━━━━━━━━━━━━━━━\n\n"
-                f"📂 Category: {p['category']}\n"
-                f"⚙️ Cores: {p['cores']}\n"
-                f"🧵 Threads: {p['threads']}\n"
-                f"⚡ TDP: {p['tdp']}\n"
-                f"🌡️ Max Temp: {p['max_temp']}\n"
-                f"🏗️ Arch: {p['arch']}\n"
-                f"🔌 Socket: {p['socket']}\n\n"
-                f"❄️ *Cooling:* {p['cooling']}\n\n"
-                "━━━━━━━━━━━━━━━━━━━━━\n"
-                "Send *1* → catalog  |  *hi* → menu"
+        # --- GREETING: Main menu ---
+        if incoming_msg in ("hi", "hello", "hey", "menu", "start"):
+            reply_text = (
+                "🌡️ *Thermal Profiling Assistant*\n"
+                "━━━━━━━━━━━━━━━━━━━━━\n\n"
+                "Welcome! I can help you explore processor\n"
+                "thermal profiles and live sensor data.\n\n"
+                "1️⃣  *Processor Catalog* (18 chips)\n"
+                "2️⃣  *Live Sensor Status*\n"
+                "3️⃣  *Exit*\n\n"
+                "Reply with *1*, *2*, or *3*."
             )
+
+        # --- OPTION 1: Full categorized processor catalog ---
+        elif incoming_msg == "1":
+            reply_text = _PROCESSOR_CATALOG
+
+        # --- OPTION p1 through p18: Individual processor details ---
+        elif incoming_msg.startswith("p") and incoming_msg[1:].isdigit():
+            proc_num = int(incoming_msg[1:])
+
+            if 1 <= proc_num <= len(PROCESSORS):
+                p = PROCESSORS[proc_num - 1]
+                reply_text = (
+                    f"🔍 *{p['name']}*\n"
+                    f"━━━━━━━━━━━━━━━━━━━━━\n\n"
+                    f"📂 Category: {p['category']}\n"
+                    f"⚙️ Cores: {p['cores']}\n"
+                    f"🧵 Threads: {p['threads']}\n"
+                    f"⚡ TDP: {p['tdp']}\n"
+                    f"🌡️ Max Temp: {p['max_temp']}\n"
+                    f"🏗️ Arch: {p['arch']}\n"
+                    f"🔌 Socket: {p['socket']}\n\n"
+                    f"❄️ *Cooling:* {p['cooling']}\n\n"
+                    "━━━━━━━━━━━━━━━━━━━━━\n"
+                    "Send *1* → catalog  |  *hi* → menu"
+                )
+            else:
+                reply_text = (
+                    f"⚠️ Processor *p{proc_num}* not found.\n\n"
+                    f"Valid range: *p1* – *p{len(PROCESSORS)}*\n"
+                    "Send *1* to see the full catalog."
+                )
+
+        # --- OPTION 2: Live Thermal Camera link ---
+        elif incoming_msg == "2":
+            reply_text = (
+                "📡 *Live Thermal Camera*\n"
+                "━━━━━━━━━━━━━━━━━━━━━\n\n"
+                "👉 View real-time thermal monitoring:\n"
+                "https://thermalprofiling.tech/sensor\n\n"
+                "🌐 Open the link in your browser.\n\n"
+                "Send *hi* to return to menu."
+            )
+
+        # --- OPTION 3: Exit ---
+        elif incoming_msg == "3":
+            reply_text = (
+                "👋 *Thank you for using Thermal Profiling Assistant!*\n\n"
+                "Stay cool. Send *hi* anytime to start again. 🌡️"
+            )
+
+        # --- INVALID INPUT: Friendly error ---
         else:
-            msg.body(
-                f"⚠️ Processor *p{proc_num}* not found.\n\n"
-                f"Valid range: *p1* – *p{len(PROCESSORS)}*\n"
-                "Send *1* to see the full catalog."
+            reply_text = (
+                "❓ Sorry, I didn't understand that.\n\n"
+                "Available commands:\n"
+                "• *hi* — Main menu\n"
+                "• *1* — Processor catalog\n"
+                "• *p1* – *p18* — Processor details\n"
+                "• *2* — Live sensor data\n"
+                "• *3* — Exit\n\n"
+                "Try again!"
             )
 
-    # --- OPTION 2: Live Thermal Camera link ---
-    elif incoming_msg == "2":
-        msg.body(
-            "📡 *Live Thermal Camera*\n"
-            "━━━━━━━━━━━━━━━━━━━━━\n\n"
-            "👉 View real-time thermal monitoring:\n"
-            "https://thermalprofiling.tech/sensor\n\n"
-            "🌐 Open the link in your browser.\n\n"
-            "Send *hi* to return to menu."
-        )
+        # ── Step 3: Build TwiML using resp.message("text") pattern ──
+        resp = MessagingResponse()
+        resp.message(reply_text)
 
-    # --- OPTION 3: Exit ---
-    elif incoming_msg == "3":
-        msg.body(
-            "👋 *Thank you for using Thermal Profiling Assistant!*\n\n"
-            "Stay cool. Send *hi* anytime to start again. 🌡️"
-        )
+        # ── Debug: log generated TwiML ──
+        twiml_str = str(resp)
+        app.logger.info("WhatsApp TwiML: %s", twiml_str)
 
-    # --- INVALID INPUT: Friendly error ---
-    else:
-        msg.body(
-            "❓ Sorry, I didn't understand that.\n\n"
-            "Available commands:\n"
-            "• *hi* — Main menu\n"
-            "• *1* — Processor catalog\n"
-            "• *p1* – *p18* — Processor details\n"
-            "• *2* — Live sensor data\n"
-            "• *3* — Exit\n\n"
-            "Try again!"
-        )
+        # ── Step 4: Return valid TwiML XML ──
+        return Response(twiml_str, status=200, content_type="text/xml")
 
-    # ── Step 4: Return TwiML XML response ──
-    return str(resp)
+    except Exception as e:
+        app.logger.error("whatsapp_webhook error: %s", e, exc_info=True)
+        fallback = MessagingResponse()
+        fallback.message("⚠️ Something went wrong. Please try again.\nSend *hi* for the menu.")
+        return Response(str(fallback), status=200, content_type="text/xml")
 
 
 # ═══════════════════════════════════════════════════════════════════════════
