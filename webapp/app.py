@@ -18,9 +18,11 @@
     /simulate       — POST profile-based simulation
     /history        — GET last 10 simulation results
     /whatsapp       — Twilio WhatsApp webhook (menu-driven chatbot)
+    /debug-images   — Diagnostic: check thermal image URLs
 =============================================================================
 """
 
+import re
 import sys
 import os
 import time
@@ -30,6 +32,7 @@ from datetime import datetime, timezone
 from flask import Response
 from typing import Dict, Optional
 
+import requests as http_requests  # aliased to avoid clash with flask.request
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 import numpy as np
 from dotenv import load_dotenv
@@ -457,6 +460,15 @@ def history():
 #    curl -X POST http://127.0.0.1:5000/whatsapp -d "Body=3"
 # ═══════════════════════════════════════════════════════════════════════════
 
+# Image base URL — single source of truth
+_IMAGE_BASE_URL = "https://thermalprofiling.tech/static/3d"
+
+# Timeout (seconds) for the HEAD check so Twilio is never kept waiting.
+_IMAGE_CHECK_TIMEOUT = 1.5
+
+# Regex for matching processor commands (p1–p18, case-insensitive)
+_PROC_CMD_RE = re.compile(r"^p(\d+)$")
+
 from twilio.twiml.messaging_response import MessagingResponse
 
 # ---------------------------------------------------------------------------
@@ -645,17 +657,22 @@ def _build_processor_catalog():
             categories.append(cat)
             seen.add(cat)
 
-    lines = ["🔧 *Thermal Profiling — Processor Catalog*\n"]
+    lines = [
+        "🔧 *Processor Catalog*",
+        "━━━━━━━━━━━━━━━━━━━━━",
+        "_Select a processor to view full thermal details._",
+    ]
     idx = 1
     for cat in categories:
         lines.append(f"\n{cat}")
         for p in PROCESSORS:
             if p["category"] == cat:
-                lines.append(f"  *p{idx}*. {p['name']} ({p['short']})")
+                lines.append(f"  *p{idx}*  {p['name']}  ·  {p['short']}")
                 idx += 1
 
-    lines.append("\n📌 _Reply *p1* – *p18* for full specs._")
-    lines.append("_Send *hi* for main menu._")
+    lines.append("\n━━━━━━━━━━━━━━━━━━━━━")
+    lines.append("📌 Reply *p1* – *p18* for full specs")
+    lines.append("🔁 Send *hi* for main menu")
     return "\n".join(lines)
 
 
@@ -673,95 +690,155 @@ def whatsapp_webhook():
     Uses resp.message("text") pattern for guaranteed valid TwiML.
     """
     try:
-        # ── Step 1: Read the incoming message ──
+        # ── Step 1: Read & normalise the incoming message ──
         incoming_msg = request.values.get("Body", "").strip().lower()
-        app.logger.info("WhatsApp incoming: '%s'", incoming_msg)
+        sender = request.values.get("From", "unknown")
+        app.logger.info("WhatsApp [%s] incoming: '%s'", sender, incoming_msg)
 
         # ── Step 2: Build reply text based on menu logic ──
         reply_text = ""
+        image_url = None  # Set for responses that include a thermal map
 
         # --- GREETING: Main menu ---
         if incoming_msg in ("hi", "hello", "hey", "menu", "start"):
+            app.logger.info("WhatsApp → greeting menu")
             reply_text = (
                 "🌡️ *Thermal Profiling Assistant*\n"
                 "━━━━━━━━━━━━━━━━━━━━━\n\n"
-                "Welcome! I can help you explore processor\n"
-                "thermal profiles and live sensor data.\n\n"
-                "1️⃣  *Processor Catalog* (18 chips)\n"
-                "2️⃣  *Live Sensor Status*\n"
+                "Explore real-time processor heat insights.\n\n"
+                "1️⃣  *Processor Catalog*  ·  18 chips\n"
+                "2️⃣  *Live Sensor Monitor*  ·  real-time\n"
                 "3️⃣  *Exit*\n\n"
-                "Reply with *1*, *2*, or *3*."
+                "👉 Reply with *1*, *2*, or *3*"
             )
 
         # --- OPTION 1: Full categorized processor catalog ---
         elif incoming_msg == "1":
+            app.logger.info("WhatsApp → processor catalog")
             reply_text = _PROCESSOR_CATALOG
 
         # --- OPTION p1 through p18: Individual processor details ---
-        elif incoming_msg.startswith("p") and incoming_msg[1:].isdigit():
-            proc_num = int(incoming_msg[1:])
+        elif _PROC_CMD_RE.match(incoming_msg):
+            proc_num = int(_PROC_CMD_RE.match(incoming_msg).group(1))
+            app.logger.info("WhatsApp → processor request p%d", proc_num)
 
             if 1 <= proc_num <= len(PROCESSORS):
                 p = PROCESSORS[proc_num - 1]
+
+                # Build bidirectional suggestion (prev + next)
+                nav_parts = []
+                if proc_num > 1:
+                    nav_parts.append(f"p{proc_num - 1}")
+                if proc_num < len(PROCESSORS):
+                    nav_parts.append(f"p{proc_num + 1}")
+                suggest_line = (
+                    f"👉 Try *{' | '.join(nav_parts)}*"
+                    if nav_parts
+                    else "👉 Send *1* to browse all processors"
+                )
+
                 reply_text = (
-                    f"🔍 *{p['name']}*\n"
+                    f"🔍 *{p['name']}*  _(p{proc_num})_\n"
                     f"━━━━━━━━━━━━━━━━━━━━━\n\n"
-                    f"📂 Category: {p['category']}\n"
-                    f"⚙️ Cores: {p['cores']}\n"
-                    f"🧵 Threads: {p['threads']}\n"
-                    f"⚡ TDP: {p['tdp']}\n"
-                    f"🌡️ Max Temp: {p['max_temp']}\n"
-                    f"🏗️ Arch: {p['arch']}\n"
+                    f"📂 {p['category']}\n\n"
+                    f"⚙️ Cores: *{p['cores']}*\n"
+                    f"🧵 Threads: *{p['threads']}*\n"
+                    f"⚡ TDP: *{p['tdp']}*\n"
+                    f"🌡️ Max Temp: *{p['max_temp']}*\n"
+                    f"🏗️ Architecture: {p['arch']}\n"
                     f"🔌 Socket: {p['socket']}\n\n"
-                    f"❄️ *Cooling:* {p['cooling']}\n\n"
+                    f"❄️ *Cooling Recommendation:*\n{p['cooling']}\n\n"
+                )
+
+                # ── Image availability check (non-blocking, timeout-safe) ──
+                candidate_url = f"{_IMAGE_BASE_URL}/p{proc_num}.png"
+                try:
+                    head_resp = http_requests.head(
+                        candidate_url, timeout=_IMAGE_CHECK_TIMEOUT, allow_redirects=True,
+                    )
+                    if head_resp.status_code == 200:
+                        image_url = candidate_url
+                        reply_text += "⚡ _Generating thermal visualization..._\n\n📊 *Thermal Map* 👇\n\n"
+                        app.logger.info(
+                            "WhatsApp → image OK: %s (status %d)",
+                            candidate_url, head_resp.status_code,
+                        )
+                    else:
+                        reply_text += "⚠️ _Thermal visualization temporarily unavailable._\n\n"
+                        app.logger.warning(
+                            "WhatsApp → image UNAVAILABLE: %s (status %d)",
+                            candidate_url, head_resp.status_code,
+                        )
+                except http_requests.RequestException as img_err:
+                    reply_text += "⚠️ _Thermal image currently unavailable_\n\n"
+                    app.logger.error(
+                        "WhatsApp → image HEAD failed: %s — %s",
+                        candidate_url, img_err,
+                    )
+
+                reply_text += (
                     "━━━━━━━━━━━━━━━━━━━━━\n"
-                    "Send *1* → catalog  |  *hi* → menu"
+                    f"{suggest_line}\n"
+                    "🔁 *1* → catalog  ·  *hi* → menu"
                 )
             else:
+                app.logger.warning(
+                    "WhatsApp → processor p%d out of range (1–%d)",
+                    proc_num, len(PROCESSORS),
+                )
                 reply_text = (
-                    f"⚠️ Processor *p{proc_num}* not found.\n\n"
-                    f"Valid range: *p1* – *p{len(PROCESSORS)}*\n"
-                    "Send *1* to see the full catalog."
+                    f"⚠️ *Processor Not Found*\n\n"
+                    f"_p{proc_num}_ is not in our catalog.\n"
+                    f"Valid range: *p1* – *p{len(PROCESSORS)}*\n\n"
+                    "👉 Send *1* to browse the full catalog"
                 )
 
         # --- OPTION 2: Live Thermal Camera link ---
         elif incoming_msg == "2":
+            app.logger.info("WhatsApp → live sensor link")
             reply_text = (
-                "📡 *Live Thermal Camera*\n"
+                "📡 *Live Thermal Monitor*\n"
                 "━━━━━━━━━━━━━━━━━━━━━\n\n"
-                "👉 View real-time thermal monitoring:\n"
+                "🔥 Real-time temperature tracking enabled\n\n"
+                "👉 *Open dashboard:*\n"
                 "https://thermalprofiling.tech/sensor\n\n"
-                "🌐 Open the link in your browser.\n\n"
-                "Send *hi* to return to menu."
+                "⚡ Data updates dynamically from sensors\n\n"
+                "🔁 Send *hi* to return"
             )
 
         # --- OPTION 3: Exit ---
         elif incoming_msg == "3":
+            app.logger.info("WhatsApp → exit")
             reply_text = (
-                "👋 *Thank you for using Thermal Profiling Assistant!*\n\n"
-                "Stay cool. Send *hi* anytime to start again. 🌡️"
+                "👋 *Session Ended*\n\n"
+                "Thanks for exploring Thermal Profiling 🚀\n\n"
+                "Stay cool under pressure 🌡️\n\n"
+                "👉 Send *hi* anytime to restart"
             )
 
         # --- INVALID INPUT: Friendly error ---
         else:
+            app.logger.info("WhatsApp → unrecognised command: '%s'", incoming_msg)
             reply_text = (
-                "❓ Sorry, I didn't understand that.\n\n"
-                "Available commands:\n"
-                "• *hi* — Main menu\n"
-                "• *1* — Processor catalog\n"
-                "• *p1* – *p18* — Processor details\n"
-                "• *2* — Live sensor data\n"
-                "• *3* — Exit\n\n"
-                "Try again!"
+                "❌ *Invalid Input*\n\n"
+                "Try one of these:\n\n"
+                "• *hi*  →  Main menu\n"
+                "• *1*  →  Processor catalog\n"
+                "• *p1* – *p18*  →  Processor details\n"
+                "• *2*  →  Live sensor monitor\n"
+                "• *3*  →  Exit\n\n"
+                "👉 Type *hi* to restart"
             )
 
         # ── Step 3: Build TwiML using resp.message("text") pattern ──
         resp = MessagingResponse()
-        resp.message(reply_text)
+        msg = resp.message(reply_text)
+        if image_url:
+            msg.media(image_url)
 
         # ── Debug: log generated TwiML ──
         twiml_str = str(resp)
-        app.logger.info("WhatsApp TwiML: %s", twiml_str)
+        app.logger.info("WhatsApp TwiML (%d chars): %s", len(twiml_str), twiml_str)
 
         # ── Step 4: Return valid TwiML XML ──
         return Response(twiml_str, status=200, content_type="text/xml")
@@ -771,6 +848,31 @@ def whatsapp_webhook():
         fallback = MessagingResponse()
         fallback.message("⚠️ Something went wrong. Please try again.\nSend *hi* for the menu.")
         return Response(str(fallback), status=200, content_type="text/xml")
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+#  DEBUG & DIAGNOSTICS
+# ═══════════════════════════════════════════════════════════════════════════
+
+@app.route("/debug-images")
+def debug_images():
+    """
+    Diagnostic endpoint: verifies availability of all 18 thermal map images.
+    Returns each URL with its HTTP status so broken links are easy to spot.
+    """
+    results = {}
+    for i in range(1, len(PROCESSORS) + 1):
+        url = f"{_IMAGE_BASE_URL}/p{i}.png"
+        try:
+            r = http_requests.head(url, timeout=_IMAGE_CHECK_TIMEOUT, allow_redirects=True)
+            results[f"p{i}"] = {"url": url, "status": r.status_code, "ok": r.status_code == 200}
+        except http_requests.RequestException as e:
+            results[f"p{i}"] = {"url": url, "status": "error", "ok": False, "detail": str(e)}
+    return jsonify({
+        "total": len(PROCESSORS),
+        "base_url": _IMAGE_BASE_URL,
+        "images": results,
+    })
 
 
 # ═══════════════════════════════════════════════════════════════════════════
