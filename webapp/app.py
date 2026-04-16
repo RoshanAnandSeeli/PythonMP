@@ -463,8 +463,8 @@ def history():
 # Image base URL — single source of truth
 _IMAGE_BASE_URL = "https://thermalprofiling.tech/static/3d"
 
-# Timeout (seconds) for the HEAD check so Twilio is never kept waiting.
-_IMAGE_CHECK_TIMEOUT = 1.5
+# Timeout (seconds) for the debug-images GET check.
+_IMAGE_DEBUG_TIMEOUT = 2
 
 # Regex for matching processor commands (p1–p18, case-insensitive)
 _PROC_CMD_RE = re.compile(r"^p(\d+)$")
@@ -750,31 +750,12 @@ def whatsapp_webhook():
                     f"❄️ *Cooling Recommendation:*\n{p['cooling']}\n\n"
                 )
 
-                # ── Image availability check (non-blocking, timeout-safe) ──
-                candidate_url = f"{_IMAGE_BASE_URL}/p{proc_num}.png"
-                try:
-                    head_resp = http_requests.head(
-                        candidate_url, timeout=_IMAGE_CHECK_TIMEOUT, allow_redirects=True,
-                    )
-                    if head_resp.status_code == 200:
-                        image_url = candidate_url
-                        reply_text += "⚡ _Generating thermal visualization..._\n\n📊 *Thermal Map* 👇\n\n"
-                        app.logger.info(
-                            "WhatsApp → image OK: %s (status %d)",
-                            candidate_url, head_resp.status_code,
-                        )
-                    else:
-                        reply_text += "⚠️ _Thermal visualization temporarily unavailable._\n\n"
-                        app.logger.warning(
-                            "WhatsApp → image UNAVAILABLE: %s (status %d)",
-                            candidate_url, head_resp.status_code,
-                        )
-                except http_requests.RequestException as img_err:
-                    reply_text += "⚠️ _Thermal image currently unavailable_\n\n"
-                    app.logger.error(
-                        "WhatsApp → image HEAD failed: %s — %s",
-                        candidate_url, img_err,
-                    )
+                # ── Attach thermal image directly (no HEAD check) ──
+                image_url = f"{_IMAGE_BASE_URL}/p{proc_num}.png"
+                app.logger.info("Sending image URL: %s", image_url)
+                reply_text += "📊 *Thermal Map* 👇\n\n"
+                reply_text += "_If image is not visible, open manually:_\n"
+                reply_text += f"{image_url}\n\n"
 
                 reply_text += (
                     "━━━━━━━━━━━━━━━━━━━━━\n"
@@ -858,14 +839,16 @@ def whatsapp_webhook():
 def debug_images():
     """
     Diagnostic endpoint: verifies availability of all 18 thermal map images.
+    Uses GET (not HEAD) because some hosts block HEAD requests.
     Returns each URL with its HTTP status so broken links are easy to spot.
     """
     results = {}
     for i in range(1, len(PROCESSORS) + 1):
         url = f"{_IMAGE_BASE_URL}/p{i}.png"
         try:
-            r = http_requests.head(url, timeout=_IMAGE_CHECK_TIMEOUT, allow_redirects=True)
+            r = http_requests.get(url, timeout=_IMAGE_DEBUG_TIMEOUT, stream=True)
             results[f"p{i}"] = {"url": url, "status": r.status_code, "ok": r.status_code == 200}
+            r.close()  # Don't download the full image body
         except http_requests.RequestException as e:
             results[f"p{i}"] = {"url": url, "status": "error", "ok": False, "detail": str(e)}
     return jsonify({
