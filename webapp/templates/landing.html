@@ -169,6 +169,42 @@
             border-color: rgba(255, 255, 255, 0.3);
         }
 
+        /* ── Calculator CTA Button ── */
+        .btn-calculator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(139, 92, 246, 0.12);
+            color: #c4b5fd;
+            padding: 0.9rem 2rem;
+            border-radius: 0.6rem;
+            font-weight: 700;
+            font-size: 1rem;
+            text-decoration: none;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-calculator:hover {
+            background: rgba(139, 92, 246, 0.22);
+            border-color: rgba(139, 92, 246, 0.55);
+            color: #e0d4ff;
+            box-shadow: 0 0 25px rgba(139, 92, 246, 0.25);
+            transform: translateY(-1px);
+        }
+
+        .btn-calculator:active {
+            transform: scale(0.97);
+        }
+
+        .btn-calculator svg {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+
         .features {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -382,6 +418,19 @@
             <a href="/login" class="btn-primary">Launch App</a>
             <a href="https://github.com/RoshanAnandSeeli/PythonMP" target="_blank" class="btn-secondary">View on
                 GitHub</a>
+            <a href="/calculator" class="btn-calculator" id="btnCalcLanding">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="4" y="2" width="16" height="20" rx="2"></rect>
+                    <line x1="8" y1="6" x2="16" y2="6"></line>
+                    <line x1="8" y1="10" x2="10" y2="10"></line>
+                    <line x1="14" y1="10" x2="16" y2="10"></line>
+                    <line x1="8" y1="14" x2="10" y2="14"></line>
+                    <line x1="14" y1="14" x2="16" y2="14"></line>
+                    <line x1="8" y1="18" x2="10" y2="18"></line>
+                    <line x1="14" y1="18" x2="16" y2="18"></line>
+                </svg>
+                Calculator
+            </a>
         </div>
     </section>
 
