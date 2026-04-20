@@ -12,6 +12,7 @@
     /logout         — Clear session
     /app            — Main dashboard (login required)
     /sensor         — Thermal camera feed page (login required)
+    /calculator     — Standalone calculator tool (public)
     /sensor-data    — POST endpoint to receive thermal frames from phone
     /live-simulate  — POST endpoint for live-mode simulation
     /profiles       — GET all CPU/GPU profiles
@@ -188,6 +189,12 @@ def home():
 def sensor_page():
     """Thermal camera feed page (requires login)."""
     return render_template("sensor.html")
+
+
+@app.route("/calculator")
+def calculator_page():
+    """Standalone calculator tool (public, no login required)."""
+    return render_template("calculator.html")
 
 
 # ═══════════════════════════════════════════════════════════════════════════

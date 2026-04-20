@@ -1,0 +1,677 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   Thermal OS Calculator — Stylesheet
+   Dual-theme (dark default, light toggle) with glassmorphism & micro-animations
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── CSS Custom Properties: Dark Theme (default) ── */
+:root {
+    /* Background & surfaces */
+    --bg-body: #0a0e1a;
+    --bg-calc: rgba(16, 20, 36, 0.92);
+    --bg-display: rgba(8, 12, 24, 0.95);
+    --bg-btn-number: rgba(255, 255, 255, 0.06);
+    --bg-btn-number-hover: rgba(255, 255, 255, 0.12);
+    --bg-btn-number-active: rgba(255, 255, 255, 0.18);
+    --bg-btn-util: rgba(6, 182, 212, 0.12);
+    --bg-btn-util-hover: rgba(6, 182, 212, 0.22);
+    --bg-btn-operator: rgba(139, 92, 246, 0.15);
+    --bg-btn-operator-hover: rgba(139, 92, 246, 0.28);
+    --bg-btn-equals: linear-gradient(135deg, #06b6d4, #8b5cf6);
+    --bg-btn-equals-hover: linear-gradient(135deg, #22d3ee, #a78bfa);
+    --bg-history: rgba(12, 16, 30, 0.96);
+
+    /* Text colors */
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --text-muted: #475569;
+    --text-display: #ffffff;
+    --text-expression: #64748b;
+    --text-btn-number: #e2e8f0;
+    --text-btn-util: #06b6d4;
+    --text-btn-operator: #c4b5fd;
+    --text-btn-equals: #ffffff;
+
+    /* Accents */
+    --accent-cyan: #06b6d4;
+    --accent-violet: #8b5cf6;
+    --accent-glow: rgba(6, 182, 212, 0.3);
+
+    /* Borders */
+    --border-calc: rgba(6, 182, 212, 0.1);
+    --border-btn: rgba(255, 255, 255, 0.04);
+    --border-history: rgba(6, 182, 212, 0.08);
+
+    /* Shadows */
+    --shadow-calc: 0 25px 80px rgba(0, 0, 0, 0.5), 0 0 60px rgba(6, 182, 212, 0.08);
+    --shadow-btn: 0 2px 8px rgba(0, 0, 0, 0.2);
+    --shadow-btn-equals: 0 4px 20px rgba(6, 182, 212, 0.3);
+
+    /* Top bar */
+    --bg-topbar: rgba(10, 14, 26, 0.85);
+    --border-topbar: rgba(6, 182, 212, 0.08);
+}
+
+/* ── Light Theme ── */
+[data-theme="light"] {
+    --bg-body: #f0f4f8;
+    --bg-calc: rgba(255, 255, 255, 0.92);
+    --bg-display: rgba(241, 245, 249, 0.95);
+    --bg-btn-number: rgba(0, 0, 0, 0.04);
+    --bg-btn-number-hover: rgba(0, 0, 0, 0.08);
+    --bg-btn-number-active: rgba(0, 0, 0, 0.12);
+    --bg-btn-util: rgba(6, 182, 212, 0.1);
+    --bg-btn-util-hover: rgba(6, 182, 212, 0.18);
+    --bg-btn-operator: rgba(139, 92, 246, 0.1);
+    --bg-btn-operator-hover: rgba(139, 92, 246, 0.2);
+    --bg-btn-equals: linear-gradient(135deg, #06b6d4, #8b5cf6);
+    --bg-btn-equals-hover: linear-gradient(135deg, #0891b2, #7c3aed);
+    --bg-history: rgba(248, 250, 252, 0.97);
+
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #94a3b8;
+    --text-display: #0f172a;
+    --text-expression: #94a3b8;
+    --text-btn-number: #1e293b;
+    --text-btn-util: #0891b2;
+    --text-btn-operator: #7c3aed;
+    --text-btn-equals: #ffffff;
+
+    --accent-glow: rgba(6, 182, 212, 0.15);
+    --border-calc: rgba(0, 0, 0, 0.08);
+    --border-btn: rgba(0, 0, 0, 0.04);
+    --border-history: rgba(0, 0, 0, 0.06);
+
+    --shadow-calc: 0 25px 80px rgba(0, 0, 0, 0.08), 0 4px 20px rgba(0, 0, 0, 0.04);
+    --shadow-btn: 0 1px 4px rgba(0, 0, 0, 0.06);
+    --shadow-btn-equals: 0 4px 20px rgba(6, 182, 212, 0.2);
+
+    --bg-topbar: rgba(240, 244, 248, 0.88);
+    --border-topbar: rgba(0, 0, 0, 0.06);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   GLOBAL RESET & BASE
+   ═══════════════════════════════════════════════════════════════════ */
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 16px;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    background: var(--bg-body);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: background 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow-x: hidden;
+}
+
+/* ── Ambient background glow (dark mode only) ── */
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+        radial-gradient(ellipse 600px 400px at 30% 20%, rgba(6, 182, 212, 0.06) 0%, transparent 70%),
+        radial-gradient(ellipse 500px 500px at 70% 80%, rgba(139, 92, 246, 0.05) 0%, transparent 70%);
+    z-index: -1;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+}
+
+[data-theme="light"] body::before {
+    opacity: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   TOP BAR
+   ═══════════════════════════════════════════════════════════════════ */
+.top-bar {
+    width: 100%;
+    max-width: 420px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    background: var(--bg-topbar);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border-topbar);
+    transition: background 0.4s ease, border-color 0.4s ease;
+}
+
+.back-link {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: color 0.25s ease;
+}
+
+.back-link:hover {
+    color: var(--accent-cyan);
+}
+
+/* ── Theme Toggle Button ── */
+.theme-toggle {
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--border-btn);
+    border-radius: 12px;
+    background: var(--bg-btn-number);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: all 0.3s ease;
+}
+
+.theme-toggle:hover {
+    background: var(--bg-btn-number-hover);
+    color: var(--accent-cyan);
+    transform: rotate(15deg);
+}
+
+/* Show/hide sun/moon based on theme */
+.icon-moon {
+    display: none;
+}
+
+[data-theme="light"] .icon-sun {
+    display: none;
+}
+
+[data-theme="light"] .icon-moon {
+    display: block;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   CALCULATOR WRAPPER & CONTAINER
+   ═══════════════════════════════════════════════════════════════════ */
+.calc-wrapper {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    width: 100%;
+}
+
+.calculator {
+    width: 100%;
+    max-width: 400px;
+    background: var(--bg-calc);
+    border: 1px solid var(--border-calc);
+    border-radius: 24px;
+    padding: 1.25rem;
+    box-shadow: var(--shadow-calc);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    transition: background 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+    position: relative;
+    overflow: hidden;
+
+    /* Entrance animation */
+    animation: calc-appear 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes calc-appear {
+    from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.96);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   DISPLAY AREA
+   ═══════════════════════════════════════════════════════════════════ */
+.display-area {
+    background: var(--bg-display);
+    border-radius: 16px;
+    padding: 1.5rem 1.25rem 1.25rem;
+    margin-bottom: 1rem;
+    min-height: 110px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: flex-end;
+    overflow: hidden;
+    border: 1px solid var(--border-btn);
+    transition: background 0.4s ease, border-color 0.4s ease;
+}
+
+.expression {
+    width: 100%;
+    text-align: right;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    font-weight: 400;
+    color: var(--text-expression);
+    min-height: 1.3rem;
+    word-break: break-all;
+    transition: color 0.3s ease;
+    margin-bottom: 0.4rem;
+}
+
+.display {
+    width: 100%;
+    text-align: right;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 2.8rem;
+    font-weight: 700;
+    color: var(--text-display);
+    line-height: 1.15;
+    word-break: break-all;
+    transition: color 0.3s ease, font-size 0.2s ease;
+    min-height: 3.2rem;
+}
+
+/* Shrink font when display content is long */
+.display.shrink-sm {
+    font-size: 2.2rem;
+}
+
+.display.shrink-md {
+    font-size: 1.6rem;
+}
+
+.display.shrink-lg {
+    font-size: 1.2rem;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   BUTTON GRID
+   ═══════════════════════════════════════════════════════════════════ */
+.btn-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+}
+
+/* ── Base Button ── */
+.btn {
+    aspect-ratio: 1 / 1;
+    border: 1px solid var(--border-btn);
+    border-radius: 16px;
+    font-family: 'Inter', sans-serif;
+    font-size: 1.35rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-btn);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    user-select: none;
+    -webkit-user-select: none;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Ripple effect on click */
+.btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(circle at var(--ripple-x, 50%) var(--ripple-y, 50%),
+            rgba(255, 255, 255, 0.25) 0%,
+            transparent 60%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+}
+
+.btn.ripple::after {
+    opacity: 1;
+}
+
+/* ── Number Buttons ── */
+.btn-number {
+    background: var(--bg-btn-number);
+    color: var(--text-btn-number);
+}
+
+.btn-number:hover {
+    background: var(--bg-btn-number-hover);
+    transform: translateY(-1px);
+}
+
+.btn-number:active {
+    background: var(--bg-btn-number-active);
+    transform: scale(0.95);
+}
+
+/* ── Utility Buttons (C, ⌫, %) ── */
+.btn-util {
+    background: var(--bg-btn-util);
+    color: var(--text-btn-util);
+    font-weight: 700;
+}
+
+.btn-util:hover {
+    background: var(--bg-btn-util-hover);
+    transform: translateY(-1px);
+}
+
+.btn-util:active {
+    transform: scale(0.95);
+}
+
+/* ── Operator Buttons (+, −, ×, ÷) ── */
+.btn-operator {
+    background: var(--bg-btn-operator);
+    color: var(--text-btn-operator);
+    font-weight: 700;
+}
+
+.btn-operator:hover {
+    background: var(--bg-btn-operator-hover);
+    transform: translateY(-1px);
+}
+
+.btn-operator:active {
+    transform: scale(0.95);
+}
+
+/* Active operator highlight */
+.btn-operator.active-op {
+    background: var(--accent-violet);
+    color: #fff;
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+}
+
+/* ── Equals Button ── */
+.btn-equals {
+    background: var(--bg-btn-equals);
+    color: var(--text-btn-equals);
+    font-size: 1.6rem;
+    font-weight: 800;
+    box-shadow: var(--shadow-btn-equals);
+}
+
+.btn-equals:hover {
+    background: var(--bg-btn-equals-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 28px rgba(6, 182, 212, 0.4);
+}
+
+.btn-equals:active {
+    transform: scale(0.95);
+}
+
+/* ── History Toggle Button ── */
+.btn-history-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-history-toggle svg {
+    stroke: var(--text-btn-number);
+    transition: stroke 0.2s ease;
+}
+
+.btn-history-toggle:hover svg {
+    stroke: var(--accent-cyan);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   HISTORY PANEL
+   ═══════════════════════════════════════════════════════════════════ */
+.history-panel {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--bg-history);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border-radius: 24px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    z-index: 20;
+    transform: translateX(100%);
+    opacity: 0;
+    transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1),
+        opacity 0.3s ease,
+        background 0.4s ease;
+    pointer-events: none;
+}
+
+.history-panel.open {
+    transform: translateX(0);
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border-history);
+}
+
+.history-header h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    transition: color 0.3s ease;
+}
+
+.history-clear {
+    background: transparent;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #ef4444;
+    padding: 0.3rem 0.8rem;
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.history-clear:hover {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.5);
+}
+
+.history-list {
+    list-style: none;
+    flex: 1;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-btn) transparent;
+}
+
+.history-list::-webkit-scrollbar {
+    width: 4px;
+}
+
+.history-list::-webkit-scrollbar-thumb {
+    background: var(--border-btn);
+    border-radius: 4px;
+}
+
+.history-item {
+    padding: 0.75rem 0.5rem;
+    border-bottom: 1px solid var(--border-history);
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background 0.2s ease;
+    animation: history-slide-in 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes history-slide-in {
+    from {
+        opacity: 0;
+        transform: translateX(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.history-item:hover {
+    background: var(--bg-btn-number-hover);
+}
+
+.history-item .hist-expr {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.2rem;
+    transition: color 0.3s ease;
+}
+
+.history-item .hist-result {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--accent-cyan);
+}
+
+.history-empty {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-top: 3rem;
+    transition: color 0.3s ease;
+}
+
+.history-empty.hidden {
+    display: none;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   ERROR SHAKE ANIMATION
+   ═══════════════════════════════════════════════════════════════════ */
+.display-area.shake {
+    animation: shake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+}
+
+@keyframes shake {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    10%,
+    30%,
+    50%,
+    70%,
+    90% {
+        transform: translateX(-4px);
+    }
+
+    20%,
+    40%,
+    60%,
+    80% {
+        transform: translateX(4px);
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   RESPONSIVE DESIGN
+   ═══════════════════════════════════════════════════════════════════ */
+@media (max-width: 440px) {
+    .calculator {
+        border-radius: 20px;
+        padding: 1rem;
+    }
+
+    .display-area {
+        border-radius: 14px;
+        padding: 1.25rem 1rem 1rem;
+        min-height: 95px;
+    }
+
+    .display {
+        font-size: 2.4rem;
+    }
+
+    .btn-grid {
+        gap: 8px;
+    }
+
+    .btn {
+        border-radius: 14px;
+        font-size: 1.2rem;
+    }
+}
+
+@media (max-width: 360px) {
+    .top-bar {
+        padding: 0.75rem 1rem;
+    }
+
+    .calculator {
+        padding: 0.75rem;
+    }
+
+    .btn-grid {
+        gap: 6px;
+    }
+
+    .btn {
+        border-radius: 12px;
+        font-size: 1.1rem;
+    }
+
+    .display {
+        font-size: 2rem;
+    }
+}
+
+/* Larger screens: constrain max width elegantly */
+@media (min-width: 768px) {
+    .calc-wrapper {
+        padding: 2rem;
+    }
+
+    .calculator {
+        max-width: 380px;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   KEYBOARD FOCUS STYLES (accessibility)
+   ═══════════════════════════════════════════════════════════════════ */
+.btn:focus-visible {
+    outline: 2px solid var(--accent-cyan);
+    outline-offset: 2px;
+}
+
+.theme-toggle:focus-visible {
+    outline: 2px solid var(--accent-cyan);
+    outline-offset: 2px;
+}
