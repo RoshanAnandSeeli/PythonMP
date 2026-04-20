@@ -4,47 +4,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculator — Thermal OS</title>
-    <meta name="description" content="Scientific calculator tool built into the Thermal OS platform.">
-
-    <!-- Google Fonts -->
+    <title>Thermal Calculator — Thermal OS</title>
+    <meta name="description" content="Thermal profiling calculator with 18 processor profiles.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
-        rel="stylesheet">
-
-    <!-- Calculator-specific CSS -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='cal.css') }}">
 </head>
 
 <body>
-    <!-- ══════════════════════════════════════════════════════════════════
-         TOP BAR — back link + theme toggle
-    ══════════════════════════════════════════════════════════════════ -->
-    <header class="top-bar" id="topBar">
-        <a href="/" class="back-link" id="backLink" aria-label="Back to home">
+    <!-- TOP BAR -->
+    <header class="top-bar">
+        <a href="/" class="back-link">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
                 stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="15 18 9 12 15 6"></polyline>
             </svg>
             <span>Thermal OS</span>
         </a>
-
-        <div class="top-bar-controls">
-            <!-- Mode Toggle Switch: Normal ↔ Scientific -->
-            <div class="mode-toggle" id="modeToggle">
-                <span class="mode-label mode-label-active" id="labelNormal">Standard</span>
-                <button class="toggle-track" id="toggleTrack" aria-label="Toggle scientific mode">
-                    <span class="toggle-thumb" id="toggleThumb"></span>
+        <div class="top-controls">
+            <div class="mode-toggle">
+                <span class="mode-label mode-label-active" id="labelNormal">STD</span>
+                <button class="toggle-track" id="toggleTrack">
+                    <span class="toggle-thumb"></span>
                 </button>
-                <span class="mode-label" id="labelScientific">Scientific</span>
+                <span class="mode-label" id="labelScientific">SCI</span>
             </div>
-
-            <!-- Theme Toggle -->
-            <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
-                <svg class="icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <button class="top-btn" id="btnHistoryTop">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+            </button>
+            <button class="top-btn" id="themeToggle">
+                <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2">
                     <circle cx="12" cy="12" r="5"></circle>
                     <line x1="12" y1="1" x2="12" y2="3"></line>
                     <line x1="12" y1="21" x2="12" y2="23"></line>
@@ -55,101 +49,123 @@
                     <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
                     <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
                 </svg>
-                <svg class="icon-moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2">
                     <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
                 </svg>
             </button>
         </div>
     </header>
 
-    <!-- ══════════════════════════════════════════════════════════════════
-         MAIN CALCULATOR CONTAINER
-    ══════════════════════════════════════════════════════════════════ -->
-    <main class="calc-wrapper" id="calcWrapper">
+    <!-- CALCULATOR -->
+    <main class="calc-wrapper">
         <div class="calculator" id="calculator">
 
-            <!-- ── Display ── -->
+            <!-- Processor Dropdown -->
+            <div class="proc-dropdown-wrap">
+                <label class="proc-label" for="procSelect">🌡️ Processor</label>
+                <select class="proc-select" id="procSelect">
+                    <option value="">— Select a processor —</option>
+                </select>
+            </div>
+
+            <!-- Thermal Stats (shown when a processor is selected) -->
+            <div class="thermal-stats hidden" id="thermalStats">
+                <div class="stats-header" id="statsHeader"></div>
+
+                <!-- Load Slider -->
+                <div class="load-wrap">
+                    <div class="load-head">
+                        <span class="load-lbl">Load</span>
+                        <span class="load-val" id="loadVal">50%</span>
+                    </div>
+                    <input type="range" class="load-range" id="loadRange" min="0" max="100" value="50">
+                    <div class="load-bar">
+                        <div class="load-fill" id="loadFill" style="width:50%"></div>
+                    </div>
+                </div>
+
+                <!-- Metrics Grid -->
+                <div class="metrics" id="metrics"></div>
+
+                <!-- Quick Use Buttons -->
+                <div class="quick-use-row">
+                    <span class="qu-label">Use in calc →</span>
+                    <div class="quick-btns" id="quickBtns"></div>
+                </div>
+            </div>
+
+            <!-- Display -->
             <div class="display-area" id="displayArea">
                 <div class="expression" id="expression"></div>
                 <div class="display" id="display">0</div>
             </div>
 
-            <!-- ── History Panel (slides in from right) ── -->
-            <div class="history-panel" id="historyPanel">
-                <div class="history-header">
-                    <h3>History</h3>
-                    <button class="history-clear" id="historyClear" aria-label="Clear history">Clear</button>
+            <!-- Buttons -->
+            <div class="btn-body">
+                <div class="sci-panel" id="sciPanel">
+                    <button class="btn btn-sci" data-func="sin">sin</button>
+                    <button class="btn btn-sci" data-func="cos">cos</button>
+                    <button class="btn btn-sci" data-func="tan">tan</button>
+                    <button class="btn btn-sci" data-func="log">log</button>
+                    <button class="btn btn-sci" data-func="ln">ln</button>
+                    <button class="btn btn-sci" data-func="sqrt">√</button>
+                    <button class="btn btn-sci" data-func="square">x²</button>
+                    <button class="btn btn-sci" data-func="power">xⁿ</button>
+                    <button class="btn btn-sci" data-func="pi">π</button>
+                    <button class="btn btn-sci" data-func="e">e</button>
+                    <button class="btn btn-sci" data-func="abs">|x|</button>
+                    <button class="btn btn-sci" data-func="factorial">n!</button>
                 </div>
-                <ul class="history-list" id="historyList"></ul>
-                <p class="history-empty" id="historyEmpty">No calculations yet</p>
-            </div>
-
-            <!-- ══════════════════════════════════════════════════════════
-                 SCIENTIFIC BUTTONS (hidden by default, shown when toggled)
-            ══════════════════════════════════════════════════════════ -->
-            <div class="sci-grid" id="sciGrid">
-                <!-- Row 1 -->
-                <button class="btn btn-sci" data-action="sci" data-func="sin" id="btnSin">sin</button>
-                <button class="btn btn-sci" data-action="sci" data-func="cos" id="btnCos">cos</button>
-                <button class="btn btn-sci" data-action="sci" data-func="tan" id="btnTan">tan</button>
-                <button class="btn btn-sci" data-action="sci" data-func="log" id="btnLog">log</button>
-                <!-- Row 2 -->
-                <button class="btn btn-sci" data-action="sci" data-func="ln" id="btnLn">ln</button>
-                <button class="btn btn-sci" data-action="sci" data-func="sqrt" id="btnSqrt">√</button>
-                <button class="btn btn-sci" data-action="sci" data-func="square" id="btnSquare">x²</button>
-                <button class="btn btn-sci" data-action="sci" data-func="power" id="btnPower">xⁿ</button>
-                <!-- Row 3 -->
-                <button class="btn btn-sci" data-action="sci" data-func="pi" id="btnPi">π</button>
-                <button class="btn btn-sci" data-action="sci" data-func="e" id="btnE">e</button>
-                <button class="btn btn-sci" data-action="sci" data-func="abs" id="btnAbs">|x|</button>
-                <button class="btn btn-sci" data-action="sci" data-func="factorial" id="btnFactorial">n!</button>
-            </div>
-
-            <!-- ══════════════════════════════════════════════════════════
-                 STANDARD BUTTON GRID (always visible)
-            ══════════════════════════════════════════════════════════ -->
-            <div class="btn-grid" id="btnGrid">
-                <!-- Row 1: Utility -->
-                <button class="btn btn-util" data-action="clear" id="btnClear">C</button>
-                <button class="btn btn-util" data-action="backspace" id="btnBackspace">⌫</button>
-                <button class="btn btn-util" data-action="percent" id="btnPercent">%</button>
-                <button class="btn btn-operator" data-action="operator" data-value="/" id="btnDivide">÷</button>
-
-                <!-- Row 2 -->
-                <button class="btn btn-number" data-action="number" data-value="7" id="btn7">7</button>
-                <button class="btn btn-number" data-action="number" data-value="8" id="btn8">8</button>
-                <button class="btn btn-number" data-action="number" data-value="9" id="btn9">9</button>
-                <button class="btn btn-operator" data-action="operator" data-value="*" id="btnMultiply">×</button>
-
-                <!-- Row 3 -->
-                <button class="btn btn-number" data-action="number" data-value="4" id="btn4">4</button>
-                <button class="btn btn-number" data-action="number" data-value="5" id="btn5">5</button>
-                <button class="btn btn-number" data-action="number" data-value="6" id="btn6">6</button>
-                <button class="btn btn-operator" data-action="operator" data-value="-" id="btnSubtract">−</button>
-
-                <!-- Row 4 -->
-                <button class="btn btn-number" data-action="number" data-value="1" id="btn1">1</button>
-                <button class="btn btn-number" data-action="number" data-value="2" id="btn2">2</button>
-                <button class="btn btn-number" data-action="number" data-value="3" id="btn3">3</button>
-                <button class="btn btn-operator" data-action="operator" data-value="+" id="btnAdd">+</button>
-
-                <!-- Row 5 -->
-                <button class="btn btn-number btn-history-toggle" data-action="history" id="btnHistory">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <polyline points="12 6 12 12 16 14"></polyline>
-                    </svg>
-                </button>
-                <button class="btn btn-number btn-zero" data-action="number" data-value="0" id="btn0">0</button>
-                <button class="btn btn-number" data-action="decimal" id="btnDecimal">.</button>
-                <button class="btn btn-equals" data-action="equals" id="btnEquals">=</button>
+                <div class="btn-grid" id="btnGrid">
+                    <button class="btn btn-util" data-action="clear" id="btnClear">C</button>
+                    <button class="btn btn-util" data-action="backspace" id="btnBackspace">⌫</button>
+                    <button class="btn btn-util" data-action="percent" id="btnPercent">%</button>
+                    <button class="btn btn-operator" data-action="operator" data-value="/" id="btnDivide">÷</button>
+                    <button class="btn btn-number" data-action="number" data-value="7" id="btn7">7</button>
+                    <button class="btn btn-number" data-action="number" data-value="8" id="btn8">8</button>
+                    <button class="btn btn-number" data-action="number" data-value="9" id="btn9">9</button>
+                    <button class="btn btn-operator" data-action="operator" data-value="*" id="btnMultiply">×</button>
+                    <button class="btn btn-number" data-action="number" data-value="4" id="btn4">4</button>
+                    <button class="btn btn-number" data-action="number" data-value="5" id="btn5">5</button>
+                    <button class="btn btn-number" data-action="number" data-value="6" id="btn6">6</button>
+                    <button class="btn btn-operator" data-action="operator" data-value="-" id="btnSubtract">−</button>
+                    <button class="btn btn-number" data-action="number" data-value="1" id="btn1">1</button>
+                    <button class="btn btn-number" data-action="number" data-value="2" id="btn2">2</button>
+                    <button class="btn btn-number" data-action="number" data-value="3" id="btn3">3</button>
+                    <button class="btn btn-operator" data-action="operator" data-value="+" id="btnAdd">+</button>
+                    <button class="btn btn-number" data-action="negate" id="btnNegate">+/−</button>
+                    <button class="btn btn-number" data-action="number" data-value="0" id="btn0">0</button>
+                    <button class="btn btn-number" data-action="decimal" id="btnDecimal">.</button>
+                    <button class="btn btn-equals" data-action="equals" id="btnEquals">=</button>
+                </div>
             </div>
         </div>
     </main>
 
-    <!-- Calculator-specific JS -->
+    <!-- HISTORY OVERLAY -->
+    <div class="history-overlay" id="historyOverlay">
+        <div class="history-inner">
+            <div class="history-head">
+                <button class="overlay-back" id="historyBack">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.5">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                    Back
+                </button>
+                <h2>History</h2>
+                <button class="hist-clear" id="histClear">Clear</button>
+            </div>
+            <div class="history-body">
+                <ul class="hist-list" id="histList"></ul>
+                <div class="hist-empty" id="histEmpty">
+                    <p>No calculations yet</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="{{ url_for('static', filename='cal.js') }}"></script>
 </body>
 
