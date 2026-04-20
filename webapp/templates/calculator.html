@@ -30,26 +30,37 @@
             </svg>
             <span>Thermal OS</span>
         </a>
-        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
-            <!-- Sun icon (shown in dark mode → click to go light) -->
-            <svg class="icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="5"></circle>
-                <line x1="12" y1="1" x2="12" y2="3"></line>
-                <line x1="12" y1="21" x2="12" y2="23"></line>
-                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                <line x1="1" y1="12" x2="3" y2="12"></line>
-                <line x1="21" y1="12" x2="23" y2="12"></line>
-                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-            </svg>
-            <!-- Moon icon (shown in light mode → click to go dark) -->
-            <svg class="icon-moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-            </svg>
-        </button>
+
+        <div class="top-bar-controls">
+            <!-- Mode Toggle Switch: Normal ↔ Scientific -->
+            <div class="mode-toggle" id="modeToggle">
+                <span class="mode-label mode-label-active" id="labelNormal">Standard</span>
+                <button class="toggle-track" id="toggleTrack" aria-label="Toggle scientific mode">
+                    <span class="toggle-thumb" id="toggleThumb"></span>
+                </button>
+                <span class="mode-label" id="labelScientific">Scientific</span>
+            </div>
+
+            <!-- Theme Toggle -->
+            <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                <svg class="icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="5"></circle>
+                    <line x1="12" y1="1" x2="12" y2="3"></line>
+                    <line x1="12" y1="21" x2="12" y2="23"></line>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                    <line x1="1" y1="12" x2="3" y2="12"></line>
+                    <line x1="21" y1="12" x2="23" y2="12"></line>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                </svg>
+                <svg class="icon-moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                </svg>
+            </button>
+        </div>
     </header>
 
     <!-- ══════════════════════════════════════════════════════════════════
@@ -70,13 +81,34 @@
                     <h3>History</h3>
                     <button class="history-clear" id="historyClear" aria-label="Clear history">Clear</button>
                 </div>
-                <ul class="history-list" id="historyList">
-                    <!-- Dynamically populated by JS -->
-                </ul>
+                <ul class="history-list" id="historyList"></ul>
                 <p class="history-empty" id="historyEmpty">No calculations yet</p>
             </div>
 
-            <!-- ── Button Grid ── -->
+            <!-- ══════════════════════════════════════════════════════════
+                 SCIENTIFIC BUTTONS (hidden by default, shown when toggled)
+            ══════════════════════════════════════════════════════════ -->
+            <div class="sci-grid" id="sciGrid">
+                <!-- Row 1 -->
+                <button class="btn btn-sci" data-action="sci" data-func="sin" id="btnSin">sin</button>
+                <button class="btn btn-sci" data-action="sci" data-func="cos" id="btnCos">cos</button>
+                <button class="btn btn-sci" data-action="sci" data-func="tan" id="btnTan">tan</button>
+                <button class="btn btn-sci" data-action="sci" data-func="log" id="btnLog">log</button>
+                <!-- Row 2 -->
+                <button class="btn btn-sci" data-action="sci" data-func="ln" id="btnLn">ln</button>
+                <button class="btn btn-sci" data-action="sci" data-func="sqrt" id="btnSqrt">√</button>
+                <button class="btn btn-sci" data-action="sci" data-func="square" id="btnSquare">x²</button>
+                <button class="btn btn-sci" data-action="sci" data-func="power" id="btnPower">xⁿ</button>
+                <!-- Row 3 -->
+                <button class="btn btn-sci" data-action="sci" data-func="pi" id="btnPi">π</button>
+                <button class="btn btn-sci" data-action="sci" data-func="e" id="btnE">e</button>
+                <button class="btn btn-sci" data-action="sci" data-func="abs" id="btnAbs">|x|</button>
+                <button class="btn btn-sci" data-action="sci" data-func="factorial" id="btnFactorial">n!</button>
+            </div>
+
+            <!-- ══════════════════════════════════════════════════════════
+                 STANDARD BUTTON GRID (always visible)
+            ══════════════════════════════════════════════════════════ -->
             <div class="btn-grid" id="btnGrid">
                 <!-- Row 1: Utility -->
                 <button class="btn btn-util" data-action="clear" id="btnClear">C</button>
